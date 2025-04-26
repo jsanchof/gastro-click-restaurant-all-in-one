@@ -19,7 +19,7 @@ class User(db.Model):
     phone_number: Mapped[str] = mapped_column(String(120), nullable=False)
     email: Mapped[str] = mapped_column(String(120), unique=True, nullable=False)
     password: Mapped[str] = mapped_column(String(128), nullable=False)
-    role: Mapped[user_role] = mapped_column(Enum(user_role, name="user_role_enum"), nullable=False)
+    role: Mapped[user_role] = mapped_column(Enum(user_role, name="user_role_enum",native_enum=False), nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean(), nullable=False)
     created_at: Mapped[DateTime] = mapped_column(DateTime(), default=func.now(), server_default=func.now(), nullable=False)
     updated_at: Mapped[DateTime] = mapped_column(DateTime(), default=func.now(), server_default=func.now(), onupdate=func.now(), nullable=False)
