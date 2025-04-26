@@ -101,7 +101,7 @@ def handle_register():
             }), 400
         
         role = user_role(role_str)
-
+        print(role)
         password_hash = bcrypt.generate_password_hash(password).decode("utf-8")
 
         new_user = User(name=name, last_name=last_name, phone_number=phone_number, email=email, password=password_hash, role=role, is_active=True)
