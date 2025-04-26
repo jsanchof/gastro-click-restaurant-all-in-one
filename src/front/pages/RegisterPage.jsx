@@ -7,7 +7,6 @@ export const RegisterPage = () => {
   const [phone_number, setPhoneNumber] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const API_URL_BASE = "https://miniature-waffle-4jwxv49676rjcw9w-3001.app.github.dev";
 
   const RegistrarCuenta = async (e) => {
     e.preventDefault(); 
@@ -27,7 +26,7 @@ export const RegisterPage = () => {
         role: "CLIENTE",
       };
 
-      const response = await fetch(API_URL_BASE + "/register", {
+      const response = await fetch(import.meta.env.VITE_BACKEND_URL + "/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
