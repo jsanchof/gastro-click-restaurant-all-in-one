@@ -27,7 +27,7 @@ export const RegisterPage = () => {
         role: "CLIENTE",
       };
 
-      const response = await fetch(API_URL_BASE + "/register", {
+      const response = await fetch(import.meta.env.VITE_BACKEND_URL + "/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
