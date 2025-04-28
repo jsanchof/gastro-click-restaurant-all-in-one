@@ -129,10 +129,10 @@ def handle_login():
         
         user = db.session.scalar(db.select(User).where(User.email == email))
         if not user:
-            return jsonify({"msg", "El usuario no existe"}), 404
+            return jsonify({"msg": "El usuario no existe"}), 404
         
         if not bcrypt.check_password_hash(user.password, password):
-            return jsonify({"msg","El correo o la contraseña son incorrectos"}), 401
+            return jsonify({"msg":"El correo o la contraseña son incorrectos"}), 401
 
         # after confirminh the details are valid, generate the token
         claims = {"role": "admin", "more details": "the details"}
