@@ -6,7 +6,7 @@ from flask import Flask, request, jsonify, url_for, send_from_directory
 from flask_migrate import Migrate
 from flask_swagger import swagger
 from api.utils import APIException, generate_sitemap
-from api.models import db, User, user_role
+from api.models import db, User, user_role, Dishes, dish_type
 from api.routes import api
 from api.admin import setup_admin
 from api.commands import setup_commands
@@ -144,6 +144,92 @@ def handle_login():
         db.session.rollback()
         return jsonify({"ok": False, "msg": str(e)}),500
     
+@app.route('/dishes', methods=['POST'])
+def handle_add_dish():
+    try:
+        data = request.get_json(silent=True)
+
+        name = data.get("name")
+        description = data.get("description")
+        price = data.get("price")
+        type_str = (data.get("type") or "").upper()
+
+        if not all([name, description, price, type_str]):
+            return jsonify({"msg":"Todos los campos son requeridos"}), 400
+        
+        existing_dish = db.session.scalar(db.select(Dishes).where(Dishes.name == name))
+
+        if existing_dish:
+            return jsonify({"msg": "El platillo ya existe"}), 409
+
+        valid_types = [r.value for r in dish_type]
+        if type_str not in valid_types:
+            return jsonify({
+                "msg": "Rol inválido",
+                "valid_types": valid_types
+            }), 400
+        
+        type = user_role(type_str)
+        print(type)
+
+        new_user = Dishes(name=name, description=description, price=price, type=type, is_active=True)
+
+        db.session.add(new_user)
+        db.session.commit()
+        
+        return jsonify({"ok": True, "msg": "Register dish was successfull..."}), 201
+    except Exception as e:
+        print("Error:", str(e))
+        db.session.rollback()
+        return jsonify({"ok": False, "msg": str(e)}), 500
+
+@app.route('/dishes', methods=['GET'])
+def get_all_dishes():
+    try:
+        users = User.query.all()  
+        users_list = [user.serialize() for user in users] 
+        
+        return jsonify(users_list), 200
+    
+    except Exception as e:
+        return jsonify({"error": "Internal Server Error", "message": str(e)}), 500
+    
+@app.route('/dishes/<int:dish_id>', methods=['GET'])
+def get_dish_by_id(dish_id):
+    try:
+        dish = Dishes.query.get(dish_id) 
+        if dish is None:
+            return jsonify({"error": "No se encontró el platillo"}), 404
+
+        return jsonify(dish.serialize()), 200 
+    
+    except Exception as e:
+        return jsonify({"error": "Internal Server Error", "message": str(e)}), 500
+    
+@app.route('/dishes/<int:user_id>', methods=['PUT'])
+def update_dish(dish_id):
+    try:
+        dish = Dishes.query.get(dish_id)
+        if not dish:
+            return jsonify({"error": "No se encontró el platillo"}), 404
+
+        data = request.get_json()
+
+        if "name" in data:
+            dish.name = data["name"]
+        if "description" in data:
+            dish.description = data["description"]
+        if "price" in data:
+            dish.price = data["price"]
+        if "type" in data:
+            dish.type = data["type"]
+
+        db.session.commit()
+
+        return jsonify(dish.serialize()), 200
+
+    except Exception as e:
+        return jsonify({"error": "Internal Server Error", "message": str(e)}), 500
 
 # this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':
