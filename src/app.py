@@ -144,6 +144,7 @@ def handle_login():
         db.session.rollback()
         return jsonify({"ok": False, "msg": str(e)}),500
     
+#Dishes endpoints
 @app.route('/dishes', methods=['POST'])
 def handle_add_dish():
     try:
@@ -165,16 +166,16 @@ def handle_add_dish():
         valid_types = [r.value for r in dish_type]
         if type_str not in valid_types:
             return jsonify({
-                "msg": "Rol inválido",
+                "msg": "Tipo inválido",
                 "valid_types": valid_types
             }), 400
         
-        type = user_role(type_str)
+        type = dish_type(type_str)
         print(type)
 
-        new_user = Dishes(name=name, description=description, price=price, type=type, is_active=True)
+        new_dish = Dishes(name=name, description=description, price=price, type=type, is_active=True)
 
-        db.session.add(new_user)
+        db.session.add(new_dish)
         db.session.commit()
         
         return jsonify({"ok": True, "msg": "Register dish was successfull..."}), 201
@@ -186,10 +187,10 @@ def handle_add_dish():
 @app.route('/dishes', methods=['GET'])
 def get_all_dishes():
     try:
-        users = User.query.all()  
-        users_list = [user.serialize() for user in users] 
+        dishes = Dishes.query.all()  
+        dish_list = [dish.serialize() for dish in dishes] 
         
-        return jsonify(users_list), 200
+        return jsonify(dish_list), 200
     
     except Exception as e:
         return jsonify({"error": "Internal Server Error", "message": str(e)}), 500
@@ -206,7 +207,7 @@ def get_dish_by_id(dish_id):
     except Exception as e:
         return jsonify({"error": "Internal Server Error", "message": str(e)}), 500
     
-@app.route('/dishes/<int:user_id>', methods=['PUT'])
+@app.route('/dishes/<int:dish_id>', methods=['PUT'])
 def update_dish(dish_id):
     try:
         dish = Dishes.query.get(dish_id)
