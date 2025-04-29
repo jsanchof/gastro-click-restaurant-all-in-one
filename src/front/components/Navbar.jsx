@@ -78,9 +78,11 @@ export const Navbar = () => {
 
 										</li>
 										<li className="nav-item fw-semibold pe-5">
-											<span className="nav-link">
-												Contacto
-											</span>
+											<Link to="/contacto" className="text-decoration-none">
+												<span className="nav-link">
+													Contacto
+												</span>
+											</Link>
 										</li>
 									</ul>
 								</div>
