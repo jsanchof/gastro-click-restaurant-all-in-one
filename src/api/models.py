@@ -54,6 +54,8 @@ class Dishes(db.Model):
     is_active: Mapped[bool] = mapped_column(Boolean(), nullable=False)
     created_at: Mapped[DateTime] = mapped_column(DateTime(), default=func.now(), server_default=func.now(), nullable=False)
     updated_at: Mapped[DateTime] = mapped_column(DateTime(), default=func.now(), server_default=func.now(), onupdate=func.now(), nullable=False)
+
+    
     def serialize(self):
         return {
             "id": self.id,
