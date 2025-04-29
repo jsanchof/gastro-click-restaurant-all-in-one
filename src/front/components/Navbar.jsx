@@ -20,7 +20,9 @@ export const Navbar = () => {
 								aria-label="Buscar"
 							/>
 						</form>
-						<button className="btn btn-outline-primary">Acceder a Cuenta</button>
+						<Link to="/login">
+							<button className="btn btn-outline-primary">Acceder a Cuenta</button>
+						</Link>
 					</div>
 				</div>
 			</nav>
@@ -71,9 +73,11 @@ export const Navbar = () => {
 											</Link>
 										</li>
 										<li className="nav-item fw-semibold pe-5">
-											<span className="nav-link">
-												Nosotros
-											</span>
+											<Link to="/nosotros" className="text-decoration-none">
+												<span className="nav-link">
+													Nosotros
+												</span>
+											</Link>
 
 
 										</li>
