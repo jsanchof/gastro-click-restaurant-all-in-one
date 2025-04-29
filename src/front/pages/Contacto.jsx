@@ -4,9 +4,6 @@ import { Link } from "react-router-dom";
 
 export function Contacto() {
   const [form, setForm] = useState({ name: "", email: "", message: "" });
-  // const [name, setName] = useState("");
-  // const [email, setEmail] = useState("");
-  // const [message, setMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
   const handleChange = (e) => {
@@ -40,8 +37,6 @@ export function Contacto() {
       setErrorMessage("Ocurrió un error al enviar el mensaje.");
     }
   }
-
-  
 
 
   return (
