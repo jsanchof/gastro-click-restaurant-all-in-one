@@ -67,3 +67,33 @@ class Dishes(db.Model):
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.created_at.isoformat() if self.created_at else None
         }
+    
+#Drinks enum and model
+class drink_type(PyEnum):
+  GASEOSA = "GASEOSA"
+  NATURAL = "NATURAL"
+  CERVEZA = "CERVEZA"
+  DESTILADOS = "DESTILADOS"
+
+class Drinks(db.Model):
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(120), nullable=False)
+    description: Mapped[str] = mapped_column(String(120), nullable=False) 
+    price: Mapped[float] = mapped_column(nullable=False)
+    type: Mapped[drink_type] = mapped_column(Enum(drink_type, name="drink_type_enum",native_enum=False), nullable=False)
+    is_active: Mapped[bool] = mapped_column(Boolean(), nullable=False)
+    created_at: Mapped[DateTime] = mapped_column(DateTime(), default=func.now(), server_default=func.now(), nullable=False)
+    updated_at: Mapped[DateTime] = mapped_column(DateTime(), default=func.now(), server_default=func.now(), onupdate=func.now(), nullable=False)
+
+    
+    def serialize(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "description": self.description,
+            "price": self.price,
+            "type": self.type.value,
+            "is_active": self.is_active,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "updated_at": self.created_at.isoformat() if self.created_at else None
+        }

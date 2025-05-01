@@ -95,7 +95,7 @@ export const Navbar = () => {
 
 					</div>
 					<div className="ml-auto">
-						<Link to="/demo">
+						<Link to="/reservas">
 							<button className="btn bg-red">Reserva Aquí</button>
 						</Link>
 					</div>
