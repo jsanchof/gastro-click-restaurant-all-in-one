@@ -13,7 +13,6 @@ import { RegisterPage } from "./pages/RegisterPage";
 import { Contacto } from "./pages/Contacto";
 import { LoginPage } from "./pages/LoginPage";
 import { Nosotros } from "./pages/Nosotros"
-import { Menu } from "./pages/Menu";
 
 
 export const router = createBrowserRouter(
@@ -35,7 +34,6 @@ export const router = createBrowserRouter(
         <Route path="/contacto" element={<Contacto />} />
         <Route path="/login" element={<LoginPage/>}/>
         <Route path="/nosotros" element={<Nosotros/>} />
-        <Route path="/menu" element={<Menu/>}/>
       </Route>
     )
 );
