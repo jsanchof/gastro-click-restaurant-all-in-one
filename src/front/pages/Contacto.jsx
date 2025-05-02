@@ -1,6 +1,7 @@
 // Import necessary components from react-router-dom and other parts of the application.
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { GoogleMapLocation } from "../components/GoogleMapLocation";
 
 export function Contacto() {
   const [form, setForm] = useState({ name: "", email: "", message: "" });
@@ -130,15 +131,7 @@ export function Contacto() {
 
       {/* Google Maps */}
       <div className="full-width-map mt-5">
-        <iframe
-          title="map"
-          src="https://www.google.com/maps/embed?pb=!1m18..."
-          width="100%"
-          height="500"
-          style={{ border: 0 }}
-          allowFullScreen=""
-          loading="lazy"
-        ></iframe>
+        <GoogleMapLocation/>
       </div>
     </>
   );
