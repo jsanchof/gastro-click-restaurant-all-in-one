@@ -63,7 +63,7 @@ export const Reservas = () => {
                     <label className="form-label">Detalles adicionales</label>
                     <textarea className="form-control" name="additional_details" onChange={handleChange} />
                 </div>
-                <button type="submit" className="btn btn-primary">Reservar</button>
+                <button type="submit" className="btn bg-red">Reservar</button>
             </form>
         </div>
     );

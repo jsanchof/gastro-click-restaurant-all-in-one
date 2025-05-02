@@ -66,7 +66,7 @@ export const Navbar = () => {
 											</Link>
 										</li>
 										<li className="nav-item fw-semibold pe-5">
-											<Link className="text-decoration-none">
+											<Link to="/menu" className="text-decoration-none">
 												<span className="nav-link">
 													Menú
 												</span>
