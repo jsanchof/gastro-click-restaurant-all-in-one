@@ -91,7 +91,7 @@ def handle_register():
 
         if not name or not last_name or not phone_number or not role_str:
             return jsonify({"msg": "Todos los campos son requeridos"}), 400
-
+        
         valid_roles = [r.value for r in user_role]
         if role_str not in valid_roles:
             return jsonify({
@@ -142,6 +142,49 @@ def handle_login():
         print("Error:", str(e))
         db.session.rollback()
         return jsonify({"ok": False, "msg": str(e)}),500
+    
+@app.route('/edit_user/<int:user_id>', methods=['PUT'])
+def edit_user(user_id):
+    try:
+        data = request.get_json(silent=True)
+
+        name = data.get("name")
+        last_name = data.get("last_name")
+        phone_number = data.get("phone_number")
+        password = data.get("password")
+        role_str = (data.get("role") or "").upper()
+
+        user = db.session.get(User, user_id)
+
+        if not user:
+            return jsonify({"msg": "Usuario no encontrado"}), 404
+        if "email" in data:
+            return jsonify({"msg": "No puedes actualizar el email"}), 400
+        if name:
+            user.name = name
+        if last_name:
+            user.last_name = last_name
+        if phone_number:
+            user.phone_number = phone_number
+        if password:
+            user.password = bcrypt.generate_password_hash(password).decode("utf-8")
+        if role_str:
+            valid_roles = [r.value for r in user_role]
+            if role_str not in valid_roles:
+                return jsonify({
+                    "msg": "Rol inválido",
+                    "valid_roles": valid_roles
+                }), 400
+            user.role = user_role(role_str)
+
+        db.session.commit()
+
+        return jsonify({"ok": True, "msg": "Usuario actualizado correctamente"}), 200
+
+    except Exception as e:
+        print("Error:", str(e))
+        db.session.rollback()
+        return jsonify({"ok": False, "msg": str(e)}), 500
     
 #Dishes endpoints
 @app.route('/dishes', methods=['POST'])
