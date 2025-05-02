@@ -16,14 +16,19 @@ export const Reservas = () => {
 
     const handleSubmit = async e => {
         e.preventDefault();
+
+        const formCopy = { ...form };
+        formCopy.start_date_time = new Date(form.start_date_time).toISOString().slice(0, 19).replace('T', ' ');
+        
         try {
-            const res = await fetch('/api/reservations', {
+            const res = await fetch(import.meta.env.VITE_BACKEND_URL + '/api/reservations', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(form)
             });
 
             const result = await res.json();
+
             if (res.ok) {
                 alert('¡Reserva enviada con éxito!');
             } else {
@@ -63,7 +68,7 @@ export const Reservas = () => {
                     <label className="form-label">Detalles adicionales</label>
                     <textarea className="form-control" name="additional_details" onChange={handleChange} />
                 </div>
-                <button type="submit" className="btn btn-primary">Reservar</button>
+                <button type="submit" className="btn bg-red">Reservar</button>
             </form>
         </div>
     );
