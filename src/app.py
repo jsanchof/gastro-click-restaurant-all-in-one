@@ -6,7 +6,7 @@ from flask import Flask, request, jsonify, url_for, send_from_directory
 from flask_migrate import Migrate
 from flask_swagger import swagger
 from api.utils import APIException, generate_sitemap
-from api.models import db, User, user_role, Dishes, dish_type
+from api.models import db, User, user_role, Dishes, dish_type, Reservation, Table
 from api.routes import api
 from api.admin import setup_admin
 from api.commands import setup_commands
@@ -19,7 +19,9 @@ from sqlalchemy import text
 ENV = "development" if os.getenv("FLASK_DEBUG") == "1" else "production"
 static_file_dir = os.path.join(os.path.dirname(
     os.path.realpath(__file__)), '../public/')
+
 app = Flask(__name__)
+
 app.config["JWT_SECRET_KEY"] = "da_secre_qi"
 jwt = JWTManager(app)
 CORS(app)
@@ -230,6 +232,8 @@ def update_dish(dish_id):
 
     except Exception as e:
         return jsonify({"error": "Internal Server Error", "message": str(e)}), 500
+    
+
 
 # this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':
