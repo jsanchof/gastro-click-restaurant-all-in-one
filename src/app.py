@@ -13,7 +13,6 @@ from api.commands import setup_commands
 from flask_jwt_extended import create_access_token, JWTManager
 from flask_cors import CORS
 from flask_bcrypt import Bcrypt
-from sqlalchemy import text
 
 
 ENV = "development" if os.getenv("FLASK_DEBUG") == "1" else "production"
@@ -170,8 +169,7 @@ def handle_add_dish():
                 "valid_types": valid_types
             }), 400
         
-        type = user_role(type_str)
-        print(type)
+        type = dish_type(type_str)
 
         new_dish = Dishes(name=name, description=description, price=price, type=type, is_active=True)
 
@@ -187,8 +185,8 @@ def handle_add_dish():
 @app.route('/dishes', methods=['GET'])
 def get_all_dishes():
     try:
-        users = User.query.all()  
-        users_list = [user.serialize() for user in users] 
+        dishes = Dishes.query.all()  
+        dish_list = [dish.serialize() for dish in dishes] 
         
         return jsonify(dish_list), 200
     
