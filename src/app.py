@@ -6,20 +6,21 @@ from flask import Flask, request, jsonify, url_for, send_from_directory
 from flask_migrate import Migrate
 from flask_swagger import swagger
 from api.utils import APIException, generate_sitemap
-from api.models import db, User, user_role, Dishes, dish_type
+from api.models import db, User, user_role, Dishes, dish_type, Drinks, drink_type
 from api.routes import api
 from api.admin import setup_admin
 from api.commands import setup_commands
 from flask_jwt_extended import create_access_token, JWTManager
 from flask_cors import CORS
 from flask_bcrypt import Bcrypt
-from sqlalchemy import text
 
 
 ENV = "development" if os.getenv("FLASK_DEBUG") == "1" else "production"
 static_file_dir = os.path.join(os.path.dirname(
     os.path.realpath(__file__)), '../public/')
+
 app = Flask(__name__)
+
 app.config["JWT_SECRET_KEY"] = "da_secre_qi"
 jwt = JWTManager(app)
 CORS(app)
@@ -92,7 +93,7 @@ def handle_register():
 
         if not name or not last_name or not phone_number or not role_str:
             return jsonify({"msg": "Todos los campos son requeridos"}), 400
-
+        
         valid_roles = [r.value for r in user_role]
         if role_str not in valid_roles:
             return jsonify({
@@ -144,6 +145,49 @@ def handle_login():
         db.session.rollback()
         return jsonify({"ok": False, "msg": str(e)}),500
     
+@app.route('/edit_user/<int:user_id>', methods=['PUT'])
+def edit_user(user_id):
+    try:
+        data = request.get_json(silent=True)
+
+        name = data.get("name")
+        last_name = data.get("last_name")
+        phone_number = data.get("phone_number")
+        password = data.get("password")
+        role_str = (data.get("role") or "").upper()
+
+        user = db.session.get(User, user_id)
+
+        if not user:
+            return jsonify({"msg": "Usuario no encontrado"}), 404
+        if "email" in data:
+            return jsonify({"msg": "No puedes actualizar el email"}), 400
+        if name:
+            user.name = name
+        if last_name:
+            user.last_name = last_name
+        if phone_number:
+            user.phone_number = phone_number
+        if password:
+            user.password = bcrypt.generate_password_hash(password).decode("utf-8")
+        if role_str:
+            valid_roles = [r.value for r in user_role]
+            if role_str not in valid_roles:
+                return jsonify({
+                    "msg": "Rol inválido",
+                    "valid_roles": valid_roles
+                }), 400
+            user.role = user_role(role_str)
+
+        db.session.commit()
+
+        return jsonify({"ok": True, "msg": "Usuario actualizado correctamente"}), 200
+
+    except Exception as e:
+        print("Error:", str(e))
+        db.session.rollback()
+        return jsonify({"ok": False, "msg": str(e)}), 500
+    
 #Dishes endpoints
 @app.route('/dishes', methods=['POST'])
 def handle_add_dish():
@@ -171,7 +215,6 @@ def handle_add_dish():
             }), 400
         
         type = dish_type(type_str)
-        print(type)
 
         new_dish = Dishes(name=name, description=description, price=price, type=type, is_active=True)
 
@@ -231,6 +274,98 @@ def update_dish(dish_id):
 
     except Exception as e:
         return jsonify({"error": "Internal Server Error", "message": str(e)}), 500
+    
+
+
+
+#Drinks endpoints
+@app.route('/drinks', methods=['POST'])
+def handle_add_drink():
+    try:
+        data = request.get_json(silent=True)
+
+        name = data.get("name")
+        description = data.get("description")
+        price = data.get("price")
+        type_str = (data.get("type") or "").upper()
+
+        if not all([name, description, price, type_str]):
+            return jsonify({"msg":"Todos los campos son requeridos"}), 400
+        
+        existing_drink = db.session.scalar(db.select(Drinks).where(Drinks.name == name))
+
+        if existing_drink:
+            return jsonify({"msg": "La bebida ya existe"}), 409
+
+        valid_types = [t.value for t in drink_type]
+        if type_str not in valid_types:
+            return jsonify({
+                "msg": "Tipo inválido",
+                "valid_types": valid_types
+            }), 400
+        
+        type = drink_type(type_str)
+
+        new_drink = Drinks(name=name, description=description, price=price, type=type, is_active=True)
+
+        db.session.add(new_drink)
+        db.session.commit()
+        
+        return jsonify({"ok": True, "msg": "Register drink was successfull..."}), 201
+    except Exception as e:
+        print("Error:", str(e))
+        db.session.rollback()
+        return jsonify({"ok": False, "msg": str(e)}), 500
+
+@app.route('/drinks', methods=['GET'])
+def get_all_drinks():
+    try:
+        drinks = Drinks.query.all()  
+        drink_list = [drink.serialize() for drink in drinks] 
+        
+        return jsonify(drink_list), 200
+    
+    except Exception as e:
+        return jsonify({"error": "Internal Server Error", "message": str(e)}), 500
+    
+@app.route('/drinks/<int:drink_id>', methods=['GET'])
+def get_drink_by_id(drink_id):
+    try:
+        drink = Drinks.query.get(drink_id) 
+        if drink is None:
+            return jsonify({"error": "No se encontró la bebida"}), 404
+
+        return jsonify(drink.serialize()), 200 
+    
+    except Exception as e:
+        return jsonify({"error": "Internal Server Error", "message": str(e)}), 500
+    
+@app.route('/drinks/<int:dish_id>', methods=['PUT'])
+def update_drink(drink_id):
+    try:
+        drink = Drinks.query.get(drink_id)
+        if not drink:
+            return jsonify({"error": "No se encontró la bebida."}), 404
+
+        data = request.get_json()
+
+        if "name" in data:
+            drink.name = data["name"]
+        if "description" in data:
+            drink.description = data["description"]
+        if "price" in data:
+            drink.price = data["price"]
+        if "type" in data:
+            drink.type = data["type"]
+
+        db.session.commit()
+
+        return jsonify(drink.serialize()), 200
+
+    except Exception as e:
+        return jsonify({"error": "Internal Server Error", "message": str(e)}), 500
+
+
 
 # this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':

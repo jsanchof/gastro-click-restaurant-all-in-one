@@ -66,7 +66,7 @@ export const Navbar = () => {
 											</Link>
 										</li>
 										<li className="nav-item fw-semibold pe-5">
-											<Link className="text-decoration-none">
+											<Link to="/menu" className="text-decoration-none">
 												<span className="nav-link">
 													Menú
 												</span>
@@ -95,7 +95,7 @@ export const Navbar = () => {
 
 					</div>
 					<div className="ml-auto">
-						<Link to="/demo">
+						<Link to="/reservas">
 							<button className="btn bg-red">Reserva Aquí</button>
 						</Link>
 					</div>

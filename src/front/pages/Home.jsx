@@ -2,6 +2,7 @@ import React, { useEffect } from "react"
 import rigoImageUrl from "../assets/img/rigo-baby.jpg";
 import suhiSliderUrl from "../assets/img/Sushi-slider-1.jpg";
 import useGlobalReducer from "../hooks/useGlobalReducer.jsx";
+import { Link } from "react-router-dom";
 
 export const Home = () => {
 
@@ -53,9 +54,11 @@ export const Home = () => {
 					<p className="mb-4">
 						Reserva tu mesa y disfruta una experiencia inolvidable
 					</p>
-					<a className="btn btn-danger btn-lg" href="#reservar">
-						Reserva Aquí
-					</a>
+					<Link to="/reservas">
+						<a className="btn btn-danger btn-lg" href="#reservar">
+							Reserva Aquí
+						</a>
+					</Link>
 				</div>
 			</div>
 		</div>
