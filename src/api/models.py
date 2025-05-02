@@ -1,8 +1,9 @@
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import String, Boolean, Enum, DateTime
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import String, Boolean, Enum, DateTime, Integer, ForeignKey, Text
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from enum import Enum as PyEnum
 from sqlalchemy.sql import func
+from datetime import datetime
 
 db = SQLAlchemy()
 
@@ -13,6 +14,8 @@ class user_role(PyEnum):
   COCINA = "COCINA"
 
 class User(db.Model):
+    __tablename__ = "users"
+
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(120), nullable=False)
     last_name: Mapped[str] = mapped_column(String(120), nullable=False) 
@@ -46,6 +49,8 @@ class dish_type(PyEnum):
   POSTRE = "POSTRE"
 
 class Dishes(db.Model):
+    __tablename__ = "dishes"
+
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(120), nullable=False)
     description: Mapped[str] = mapped_column(String(120), nullable=False) 
@@ -96,4 +101,62 @@ class Drinks(db.Model):
             "is_active": self.is_active,
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.created_at.isoformat() if self.created_at else None
+        }
+
+
+
+
+# Reservation status
+class reservation_status(PyEnum):
+    PENDIENTE = "PENDIENTE"
+    CONFIRMADA = "CONFIRMADA"
+    CANCELADA = "CANCELADA"
+    COMPLETADA = "COMPLETADA"
+
+class Reservation(db.Model):
+    __tablename__ = "reservations"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=True)
+    guest_name: Mapped[str] = mapped_column(String(120), nullable=False)
+    guest_phone: Mapped[str] = mapped_column(String(20), nullable=False)
+    quantity: Mapped[int] = mapped_column(Integer, nullable=False)
+    table_id: Mapped[int] = mapped_column(ForeignKey("tables.id"), nullable=True)
+    status: Mapped[reservation_status] = mapped_column(Enum(reservation_status), default=reservation_status.PENDIENTE)
+    start_date_time: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    additional_details: Mapped[str] = mapped_column(Text, nullable=True)
+    created_at: Mapped[DateTime] = mapped_column(DateTime(), default=func.now(), server_default=func.now(), nullable=False)
+
+    # Relaciones opcionales
+    # user = relationship("User", backref="reservations")
+    # table = relationship("Table", backref="reservations")
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "user_id": self.user_id,
+            "guest_name": self.guest_name,
+            "guest_phone": self.guest_phone,
+            "quantity": self.quantity,
+            "table_id": self.table_id,
+            "status": self.status.value,
+            "start_date_time": self.start_date_time.isoformat(),
+            "additional_details": self.additional_details,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+        }
+    
+class Table(db.Model):
+    __tablename__ = "tables"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    number: Mapped[int] = mapped_column(Integer, nullable=False)
+    chairs: Mapped[int] = mapped_column(Integer, nullable=False)
+    status: Mapped[reservation_status] = mapped_column(Enum(reservation_status), default=reservation_status.PENDIENTE)
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "number": self.number,
+            "chairs": self.chairs,
+            "status": self.status.value,
         }

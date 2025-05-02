@@ -18,7 +18,9 @@ from flask_bcrypt import Bcrypt
 ENV = "development" if os.getenv("FLASK_DEBUG") == "1" else "production"
 static_file_dir = os.path.join(os.path.dirname(
     os.path.realpath(__file__)), '../public/')
+
 app = Flask(__name__)
+
 app.config["JWT_SECRET_KEY"] = "da_secre_qi"
 jwt = JWTManager(app)
 CORS(app)
@@ -272,6 +274,8 @@ def update_dish(dish_id):
 
     except Exception as e:
         return jsonify({"error": "Internal Server Error", "message": str(e)}), 500
+    
+
 
 
 #Drinks endpoints
