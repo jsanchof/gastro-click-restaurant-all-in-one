@@ -58,5 +58,77 @@
     color: #fff;
   }
 
- 
+ /* Estilos Dashboard */
+ .app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.content-area {
+  overflow-y: auto;
+}
+
+.sidebar {
+  height: calc(100vh - 56px);
+  overflow-y: auto;
+}
+
+.sidebar.closed {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .sidebar.open {
+    position: fixed;
+    z-index: 1000;
+    height: 100vh;
+    top: 56px;
+  }
+}
+
+/* Estilos para la vista de cocina */
+.kitchen-view .card {
+  transition: all 0.3s ease;
+}
+
+.kitchen-view .card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Colores para urgencia de órdenes */
+.bg-warning-subtle {
+  background-color: #fff3cd;
+}
+
+/* Estilos para tarjetas de órdenes */
+.card-header.bg-danger {
+  animation: pulse-bg 2s infinite;
+}
+
+@keyframes pulse-bg {
+  0% {
+    background-color: #dc3545;
+  }
+  50% {
+    background-color: #bd2130;
+  }
+  100% {
+    background-color: #dc3545;
+  }
+}
   

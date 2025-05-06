@@ -55,9 +55,9 @@ export const Home = () => {
 						Reserva tu mesa y disfruta una experiencia inolvidable
 					</p>
 					<Link to="/reservas">
-						<a className="btn btn-danger btn-lg" href="#reservar">
+						<button className="btn btn-danger btn-lg" href="#reservar">
 							Reserva Aquí
-						</a>
+						</button>
 					</Link>
 				</div>
 			</div>
