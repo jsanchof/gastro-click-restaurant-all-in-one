@@ -8,7 +8,7 @@ export default function LayoutAdmin() {
       <AdminNavbar />
       <div className="d-flex flex-grow-1">
         <AdminSidebar />
-        <main className="content-area p-3 flex-grow-1">
+        <main className="content-area p-3 flex-grow-1" style={{ backgroundColor: "#f4f7fb" }}>
           <Outlet />
         </main>
       </div>

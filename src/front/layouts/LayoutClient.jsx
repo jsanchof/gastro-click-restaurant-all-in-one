@@ -9,7 +9,7 @@ export default function LayoutClient() {
             <Navbar />
             <div className="d-flex flex-grow-1">
                 <Sidebar />
-                <main className="content-area p-3 flex-grow-1">
+                <main className="content-area p-3 flex-grow-1" style={{ backgroundColor: "#f4f7fb" }}>
                     <Outlet />
                 </main>
             </div>
