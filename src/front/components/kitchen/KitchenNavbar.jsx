@@ -3,10 +3,10 @@ import { LogOut, Bell } from "lucide-react"
 
 function KitchenNavbar() {
     return (
-        <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
+        <nav className="navbar navbar-expand-lg navbar-dark" style={{ backgroundColor: "#0b2139" }}>
             <div className="container-fluid">
-                <Link className="navbar-brand" to="/kitchen">
-                    Vista de Cocina
+                <Link className="navbar-brand" style={{ color: " #a9b9c9" }} to="/kitchen">
+                    <i class="fa-solid fa-house-user"></i> Dashboard de Cocina
                 </Link>
 
                 <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#kitchenNavbar">
@@ -14,10 +14,10 @@ function KitchenNavbar() {
                 </button>
 
                 <div className="collapse navbar-collapse" id="kitchenNavbar">
-                    <ul className="navbar-nav me-auto">
+                    <ul className="navbar-nav me-auto ms-5">
                         <li className="nav-item">
                             <Link className="nav-link active" to="/kitchen">
-                                Órdenes
+                                <i class="fa-solid fa-kitchen-set"></i> Órdenes
                             </Link>
                         </li>
                         {/* <li className="nav-item">
@@ -40,7 +40,7 @@ function KitchenNavbar() {
                             <div className="small text-muted">Turno: 8:00 - 16:00</div>
                         </div>
 
-                        <button className="btn btn-outline-danger d-flex align-items-center">
+                        <button className="btn btn-outline-light d-flex align-items-center">
                             <LogOut size={18} className="me-1" />
                             <span className="d-none d-md-inline">Cerrar Sesión</span>
                         </button>

@@ -85,7 +85,7 @@ function CrearOrden() {
                                     </div>
                                 </div>
                                 <div className="col-md-4">
-                                    <button className="btn btn-info w-100">Filtrar</button>
+                                    <button className="btn w-100" style={{ backgroundColor: "#27a745", color: "white" }}>Filtrar</button>
                                 </div>
                             </div>
 

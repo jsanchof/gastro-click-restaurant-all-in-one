@@ -4,27 +4,27 @@ function Navbar({ toggleSidebar, toggleUserType }) {
   const navigate = useNavigate()
 
   return (
-    <nav className="navbar navbar-expand-lg navbar-light bg-warning">
+    <nav className="navbar navbar-expand-lg navbar-light" style={{ backgroundColor: "#0b2139" }}>
       <div className="container-fluid">
         <button className="navbar-toggler border-0 me-2" type="button" onClick={toggleSidebar}>
           <span className="navbar-toggler-icon"></span>
         </button>
-        <Link className="navbar-brand fw-bold" to="/cliente/crear-orden">
-          Dashboard del Cliente
+        <Link className="navbar-brand" style={{ color: " #a9b9c9" }} to="/cliente/crear-orden">
+          <i class="fa-solid fa-house-user"></i> Dashboard del Cliente
         </Link>
         <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
           <span className="navbar-toggler-icon"></span>
         </button>
         <div className="collapse navbar-collapse" id="navbarNav">
-          <ul className="navbar-nav">
+          <ul className="navbar-nav ms-5">
             <li className="nav-item">
-              <Link className="nav-link" to="/cliente/crear-orden">
-                Crear Orden
+              <Link className="nav-link text-light" to="/cliente/crear-orden">
+                <i class="fa-solid fa-basket-shopping"></i> Crear Orden
               </Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/cliente/mis-ordenes">
-                Mis Órdenes
+              <Link className="nav-link text-light" to="/cliente/mis-ordenes">
+                <i class="fa-solid fa-cart-plus"></i> Mis Órdenes
               </Link>
             </li>
           </ul>
@@ -53,7 +53,7 @@ function Navbar({ toggleSidebar, toggleUserType }) {
               </li>
             </ul>
           </div>
-          <div className="bg-warning-subtle p-2 rounded">
+          <div className="p-2 rounded" style={{ backgroundColor: "#fff", color: " #0b2139" }}>
             <i className="fa-regular fa-circle-user"></i>
           </div>
         </div>

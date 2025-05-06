@@ -7,8 +7,11 @@ function OrdenActual({ items, paraLlevar, setParaLlevar, cambiarCantidad, elimin
 
   return (
     <div className="card shadow-sm sticky-top" style={{ top: "1rem" }}>
-      <div className="card-header bg-info-subtle">
-        <h5 className="card-title mb-0">Orden</h5>
+      <div className="card-header" style={{ backgroundColor: "#007bfe", color: "#fff" }}>
+        <div className="d-flex justify-content-between align-items-center">
+
+        <h5 className="card-title mb-0">Orden</h5><i class="fa-solid fa-cart-shopping"></i>
+        </div>
       </div>
       <div className="card-body">
         {items.length === 0 ? (
@@ -75,7 +78,7 @@ function OrdenActual({ items, paraLlevar, setParaLlevar, cambiarCantidad, elimin
         </div>
       </div>
       <div className="card-footer">
-        <button className="btn btn-success w-100" disabled={items.length === 0} onClick={crearOrden}>
+        <button className="btn bg-red w-100" disabled={items.length === 0} onClick={crearOrden}>
           Crear Orden
         </button>
       </div>

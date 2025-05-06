@@ -99,13 +99,13 @@ function MisOrdenes() {
                             </div>
                         </div>
                         <div className="col-md-4">
-                            <button className="btn btn-info w-100">Filtrar</button>
+                            <button className="btn w-100" style={{ backgroundColor: "#27a745", color: "white" }}>Filtrar</button>
                         </div>
                     </div>
 
                     <div className="table-responsive">
                         <table className="table table-hover">
-                            <thead className="table-info">
+                            <thead className="table-light">
                                 <tr>
                                     <th>#ID</th>
                                     <th>Orden ID</th>
@@ -125,17 +125,17 @@ function MisOrdenes() {
                                         <td>
                                             <span
                                                 className={`badge ${orden.estado === "Completada"
-                                                        ? "bg-success"
+                                                        ? "bg-success px-3"
                                                         : orden.estado === "En proceso"
-                                                            ? "bg-warning"
-                                                            : "bg-danger"
-                                                    }`}
+                                                            ? "bg-warning px-3"
+                                                            : "bg-danger px-3"
+                                                    } rounded-pill`}
                                             >
                                                 {orden.estado}
                                             </span>
                                         </td>
                                         <td>
-                                            <button className="btn btn-sm btn-warning" onClick={() => verDetalles(orden.ordenId)}>
+                                            <button className="btn btn-sm btn-danger" onClick={() => verDetalles(orden.ordenId)}>
                                                 Ver detalles
                                             </button>
                                         </td>
