@@ -15,6 +15,7 @@ import { LoginPage } from "./pages/LoginPage";
 import { Nosotros } from "./pages/Nosotros"
 import { Menu } from "./pages/Menu";
 import { Reservas } from "./pages/Reservas"
+import { EditarPerfil } from "./pages/EditarPerfil";
 // Componente rutas protegidas
 import ProtectedRoute from "./components/ProtectedRoute";
 // Componentes Cliente
@@ -51,6 +52,7 @@ export const router = createBrowserRouter(
         <Route path="/nosotros" element={<Nosotros />} />
         <Route path="/menu" element={<Menu />} />
         <Route path="/reservas" element={<Reservas />} />
+        <Route path="/editar-perfil" element={<EditarPerfil />} />
       </Route>
 
       {/* Cliente */}
