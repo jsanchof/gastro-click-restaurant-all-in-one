@@ -121,7 +121,7 @@ function AdminProductos() {
         <div className="card-body">
           <div className="d-flex justify-content-between align-items-center mb-4">
             <h4 className="card-title mb-0">Gestión de Platillos y Bebidas</h4>
-            <button className="btn btn-warning" onClick={handleCreateProduct}>
+            <button className="btn text-light" onClick={handleCreateProduct} style={{ backgroundColor: "#27a745", color: "white" }}>
               Crear Nuevo
             </button>
           </div>
@@ -144,27 +144,27 @@ function AdminProductos() {
             <div className="col-md-6">
               <div className="btn-group w-100">
                 <button
-                  className={`btn ${filtroTipo === "todos" ? "btn-info" : "btn-outline-info"}`}
+                  className={`btn ${filtroTipo === "todos" ? "btn-danger" : "btn-outline-danger"}`}
                   onClick={() => setFiltroTipo("todos")}
                 >
                   Todos
                 </button>
                 <button
-                  className={`btn ${filtroTipo === "platillo" ? "btn-info" : "btn-outline-info"}`}
+                  className={`btn ${filtroTipo === "platillo" ? "btn-danger" : "btn-outline-danger"}`}
                   onClick={() => setFiltroTipo("platillo")}
                 >
                   <Utensils size={16} className="me-1" />
                   Platillos
                 </button>
                 <button
-                  className={`btn ${filtroTipo === "bebida" ? "btn-info" : "btn-outline-info"}`}
+                  className={`btn ${filtroTipo === "bebida" ? "btn-danger" : "btn-outline-danger"}`}
                   onClick={() => setFiltroTipo("bebida")}
                 >
                   <Coffee size={16} className="me-1" />
                   Bebidas
                 </button>
                 <button
-                  className={`btn ${filtroTipo === "postre" ? "btn-info" : "btn-outline-info"}`}
+                  className={`btn ${filtroTipo === "postre" ? "btn-danger" : "btn-outline-danger"}`}
                   onClick={() => setFiltroTipo("postre")}
                 >
                   <IceCream size={16} className="me-1" />

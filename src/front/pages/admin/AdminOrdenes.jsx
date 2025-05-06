@@ -131,25 +131,25 @@ function AdminOrdenes() {
                         <div className="col-md-6">
                             <div className="btn-group w-100">
                                 <button
-                                    className={`btn ${filtroEstado === "todos" ? "btn-info" : "btn-outline-info"}`}
+                                    className={`btn ${filtroEstado === "todos" ? "btn-danger" : "btn-outline-danger"}`}
                                     onClick={() => setFiltroEstado("todos")}
                                 >
                                     Todos
                                 </button>
                                 <button
-                                    className={`btn ${filtroEstado === "En proceso" ? "btn-info" : "btn-outline-info"}`}
+                                    className={`btn ${filtroEstado === "En proceso" ? "btn-danger" : "btn-outline-danger"}`}
                                     onClick={() => setFiltroEstado("En proceso")}
                                 >
                                     En proceso
                                 </button>
                                 <button
-                                    className={`btn ${filtroEstado === "Completada" ? "btn-info" : "btn-outline-info"}`}
+                                    className={`btn ${filtroEstado === "Completada" ? "btn-danger" : "btn-outline-danger"}`}
                                     onClick={() => setFiltroEstado("Completada")}
                                 >
                                     Completada
                                 </button>
                                 <button
-                                    className={`btn ${filtroEstado === "Cancelada" ? "btn-info" : "btn-outline-info"}`}
+                                    className={`btn ${filtroEstado === "Cancelada" ? "btn-danger" : "btn-outline-danger"}`}
                                     onClick={() => setFiltroEstado("Cancelada")}
                                 >
                                     Cancelada
@@ -182,11 +182,11 @@ function AdminOrdenes() {
                                         <td>
                                             <span
                                                 className={`badge ${orden.estado === "Completada"
-                                                        ? "bg-success"
+                                                        ? "bg-success px-3"
                                                         : orden.estado === "En proceso"
-                                                            ? "bg-warning"
-                                                            : "bg-danger"
-                                                    }`}
+                                                            ? "bg-warning px-3"
+                                                            : "bg-danger px-3"
+                                                    } rounded-pill`}
                                             >
                                                 {orden.estado}
                                             </span>

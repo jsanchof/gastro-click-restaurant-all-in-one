@@ -100,7 +100,7 @@ function AdminUsers() {
                 <div className="card-body">
                     <div className="d-flex justify-content-between align-items-center mb-4">
                         <h4 className="card-title mb-0">Gestión de Usuarios</h4>
-                        <button className="btn btn-warning" onClick={handleCreateUser}>
+                        <button className="btn" onClick={handleCreateUser} style={{ backgroundColor: "#27a745", color: "white" }}>
                             Crear Usuario
                         </button>
                     </div>
@@ -141,7 +141,7 @@ function AdminUsers() {
                                         <td>{user.nombre}</td>
                                         <td>{user.correo}</td>
                                         <td>
-                                            <span className={`badge ${user.rol === "admin" ? "bg-danger" : "bg-primary"} rounded-pill`}>
+                                            <span className={`badge ${user.rol === "admin" ? "bg-danger px-3" : "bg-primary px-3"} rounded-pill`}>
                                                 {user.rol}
                                             </span>
                                         </td>
