@@ -52,7 +52,6 @@ export const EditarPerfil = () => {
                 name: data.name,
                 lastName: data.lastName,
                 telephone: data.telephone,
-                // address: data.address,
                 oldEmail: data.email
             }));
 
