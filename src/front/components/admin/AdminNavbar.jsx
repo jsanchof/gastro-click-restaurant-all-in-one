@@ -1,7 +1,15 @@
 import { Link } from "react-router-dom"
 import { LogOut } from "lucide-react"
+import { useState } from "react"
+import useGlobalReducer from "../../hooks/useGlobalReducer"
 
 function AdminNavbar({ toggleSidebar, toggleUserType }) {
+  const {store, dispatch} = useGlobalReducer()
+
+  function handleLogout() {
+    dispatch({type: "logout"})
+  }
+
   return (
     <nav className="navbar navbar-expand-lg navbar-light" style={{ backgroundColor: "#0b2139", color: "white" }}>
       <div className="container-fluid">
@@ -34,12 +42,9 @@ function AdminNavbar({ toggleSidebar, toggleUserType }) {
           </ul>
         </div>
         <div className="d-flex align-items-center">
-          {/* <button className="btn btn-outline-dark me-2" onClick={toggleUserType}>
-            Modo Cliente
-          </button> */}
           <button className="btn btn-outline-light d-flex align-items-center">
             <LogOut size={18} className="me-1" />
-            <span className="d-none d-md-inline">Cerrar Sesión</span>
+           {store.isAuthenticated &&  <span className="d-none d-md-inline" onClick={handleLogout}>Cerrar Sesión</span>}
           </button>
         </div>
       </div>
