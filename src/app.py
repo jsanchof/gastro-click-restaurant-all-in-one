@@ -136,10 +136,11 @@ def handle_login():
             return jsonify({"msg":"El correo o la contraseña son incorrectos"}), 401
 
         # after confirminh the details are valid, generate the token
-        claims = {"role": "admin", "more details": "the details"}
+        user_role = user.role.value
+        claims = {"role": user_role, "more details": "the details"}
         access_token = create_access_token(identity=str(email),additional_claims=claims)
 
-        return jsonify({"ok": True, "msg": "Login was successfull...", "access_token": access_token}), 200
+        return jsonify({"ok": True, "msg": "Login was successfull...", "access_token": access_token, "role": user_role}), 200
     except Exception as e:
         print("Error:", str(e))
         db.session.rollback()
