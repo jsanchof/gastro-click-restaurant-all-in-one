@@ -26,9 +26,15 @@ export const LoginPage = () => {
       });
 
       const data = await response.json(); // leemos la respuesta
+      console.log(data)
 
       if (response.ok) {
         alert(data.msg || "¡Te has logeado con éxito!");
+
+        // Guarda el token en sessionStorage
+        sessionStorage.setItem("token", data.access_token);
+        console.log("Token guardado en sessionStorage:", sessionStorage.getItem("token"));
+
         dispatch({
           type: "login",
           payload: {
@@ -49,7 +55,7 @@ export const LoginPage = () => {
           navigate("/")
         }
 
-        // navigate("/dashboard"); // si quieres redirigir
+      // navigate("/dashboard"); // si quieres redirigir
       } else {
         alert(data.msg || "Error al iniciar sesión.");
       }
