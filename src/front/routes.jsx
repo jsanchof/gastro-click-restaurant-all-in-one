@@ -58,7 +58,7 @@ export const router = createBrowserRouter(
       {/* Cliente */}
       <Route
         element={
-          <ProtectedRoute requiredRole="client">
+          <ProtectedRoute requiredRole="CLIENTE">
             <LayoutClient />
           </ProtectedRoute>
         }
@@ -70,7 +70,7 @@ export const router = createBrowserRouter(
       {/* Administrador */}
       <Route
         element={
-          <ProtectedRoute requiredRole="admin">
+          <ProtectedRoute requiredRole="ADMIN">
             <LayoutAdmin />
           </ProtectedRoute>
         }
@@ -83,7 +83,7 @@ export const router = createBrowserRouter(
       {/* Cocina */}
       <Route
         element={
-          <ProtectedRoute requiredRole="kitchen">
+          <ProtectedRoute requiredRole="COCINA">
             <LayoutKitchen />
           </ProtectedRoute>
         }
