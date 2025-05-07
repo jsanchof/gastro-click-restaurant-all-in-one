@@ -1,7 +1,14 @@
 import { Link, useNavigate } from "react-router-dom"
+import useGlobalReducer from "../../hooks/useGlobalReducer"
+import { LogOut } from "lucide-react"
 
 function Navbar({ toggleSidebar, toggleUserType }) {
   const navigate = useNavigate()
+  const { store, dispatch } = useGlobalReducer()
+
+  function handleLogout() {
+    dispatch({ type: "logout" })
+  }
 
   return (
     <nav className="navbar navbar-expand-lg navbar-light" style={{ backgroundColor: "#0b2139" }}>
@@ -30,31 +37,22 @@ function Navbar({ toggleSidebar, toggleUserType }) {
           </ul>
         </div>
         <div className="d-flex">
-          <div className="dropdown me-2">
-            {/* <button
-              className="btn btn-outline-dark dropdown-toggle"
-              type="button"
-              id="modeDropdown"
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
-            >
-              Cambiar Modo
-            </button> */}
-            <ul className="dropdown-menu" aria-labelledby="modeDropdown">
-              <li>
-                <button className="dropdown-item" onClick={toggleUserType}>
-                  Modo Admin
-                </button>
+          <div className="btn-group mx-2">
+            <button type="button" className="p-2 btn rounded dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" style={{ backgroundColor: "#fff", color: " #0b2139" }}>
+              <i className="fa-regular fa-circle-user"></i>
+            </button>
+            <ul className="dropdown-menu list dropdown-menu-end">
+              <li><button className="dropdown-item" onClick={() => navigate("/editar-perfil")}>
+                Perfil</button>
               </li>
               <li>
-                <button className="dropdown-item" onClick={() => navigate("/kitchen")}>
-                  Modo Cocina
-                </button>
+                <hr className="dropdown-divider" />
+              </li>
+              <li><button className="dropdown-item text-danger" >
+                <LogOut size={18} className="me-1" />
+                {store.isAuthenticated && <span className="d-none d-md-inline" onClick={handleLogout}>Cerrar Sesión</span>}</button>
               </li>
             </ul>
-          </div>
-          <div className="p-2 rounded" style={{ backgroundColor: "#fff", color: " #0b2139" }}>
-            <i className="fa-regular fa-circle-user"></i>
           </div>
         </div>
       </div>
