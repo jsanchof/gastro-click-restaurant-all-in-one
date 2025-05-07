@@ -49,6 +49,7 @@ export default function storeReducer(store, action = {}) {
     case "logout":
       sessionStorage.removeItem("access_token");
       sessionStorage.removeItem("role");
+      sessionStorage.removeItem("token");
       return {
         ...store,
         isAuthenticated: false,
