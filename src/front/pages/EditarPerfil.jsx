@@ -1,8 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 
+
 export const EditarPerfil = () => {
+
     const [formData, setFormData] = useState({
         name: "",
         lastName: "",
@@ -25,35 +27,98 @@ export const EditarPerfil = () => {
         });
     };
 
-    //   const handleSave = () => {
-    //     // Aquí podrías hacer una validación previa o llamada a API
-    //     toast.success("¡Perfil actualizado correctamente!");
-    //   };
+    const getUserData = async () => {
+        try {
+            const token = sessionStorage.getItem("token");
+
+            const response = await fetch(import.meta.env.VITE_BACKEND_URL + "/profile", {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error("No se pudo obtener la información del perfil.");
+            }
+
+            const data = await response.json();
+
+            console.log("Datos recibidos del backend:", data);
+            // Actualiza el state con los datos del usuario
+            setFormData(prev => ({
+                ...prev,
+                name: data.name,
+                lastName: data.lastName,
+                telephone: data.telephone,
+                oldEmail: data.email
+            }));
+
+        } catch (error) {
+            console.error(error);
+            toast.error("Error al cargar tu perfil.");
+        }
+    };
 
 
-    const handleSave = (e) => {
+    useEffect(() => {
+        getUserData();
+    }, []);
+
+
+    const handleSave = async (e) => {
         e.preventDefault();
-        console.log(formData);
-        toast.success('Cambios guardados');
-
-        // Ejemplo simple de validación
-        // if (!formData.name || !formData.lastName) {
-        //     toast.error('Por favor completa todos los campos obligatorios.');
-        //     return;
-        // }
-
+    
+        // Validaciones
+        if (!formData.name || !formData.lastName) {
+            toast.error('Por favor completa todos los campos obligatorios.');
+            return;
+        }
+    
         if (formData.newPassword && formData.newPassword !== formData.confirmNewPassword) {
             toast.error("Las contraseñas no coinciden.");
             return;
-          }
-          
-          if (formData.newEmail && formData.newEmail !== formData.confirmNewEmail) {
+        }
+    
+        if (formData.newEmail && formData.newEmail !== formData.confirmNewEmail) {
             toast.error("Los emails no coinciden.");
             return;
-          }
-
-        toast.success('Perfil actualizado correctamente 🎉');
+        }
+    
+        // Envia los datos al backend
+        try {
+            const token = sessionStorage.getItem("token");
+    
+            const response = await fetch(import.meta.env.VITE_BACKEND_URL + "/profile", {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                    name: formData.name,
+                    lastName: formData.lastName,
+                    telephone: formData.telephone,
+                    email: formData.newEmail ? formData.newEmail : formData.oldEmail
+                }),
+            });
+    
+            const data = await response.json();
+            console.log(data);
+    
+            if (response.ok) {
+                toast.success('Perfil actualizado correctamente');
+            } else {
+                toast.error(data.error || "Hubo un error al actualizar el perfil.");
+            }
+    
+        } catch (error) {
+            console.error("Error en la actualización:", error);
+            toast.error("Error de conexión al servidor.");
+        }
     };
+    
 
 
     return (
@@ -94,17 +159,9 @@ export const EditarPerfil = () => {
                                     <input type="text" className="form-control" name="address" value={formData.address} onChange={handleChange} placeholder="Ingresa tu dirección" />
                                 </div>
 
-                                {/* Información adicional */}
-                                <div className="mb-3">
-                                    <label className="form-label">Información adicional</label>
-                                    <textarea className="form-control" rows="3" name="personalInfo" value={formData.personalInfo} onChange={handleChange} placeholder="Detalles adicionales (opcional)"></textarea>
-                                </div>
 
-                                {/* Foto de perfil */}
-                                <div className="mb-3">
-                                    <label className="form-label">Foto de perfil</label>
-                                    <input type="file" className="form-control" />
-                                </div>
+
+
                             </div>
                         </div>
 

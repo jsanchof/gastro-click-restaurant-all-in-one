@@ -1,7 +1,15 @@
 import { Link } from "react-router-dom"
 import { LogOut, Bell } from "lucide-react"
+import useGlobalReducer from "../../hooks/useGlobalReducer"
+
 
 function KitchenNavbar() {
+    const {store, dispatch} = useGlobalReducer()
+    
+      function handleLogout() {
+        dispatch({type: "logout"})
+      }
+
     return (
         <nav className="navbar navbar-expand-lg navbar-dark" style={{ backgroundColor: "#0b2139" }}>
             <div className="container-fluid">
@@ -20,11 +28,6 @@ function KitchenNavbar() {
                                 <i class="fa-solid fa-kitchen-set"></i> Órdenes
                             </Link>
                         </li>
-                        {/* <li className="nav-item">
-                            <Link className="nav-link" to="/kitchen/history">
-                                Historial
-                            </Link>
-                        </li> */}
                     </ul>
 
                     <div className="d-flex align-items-center">
@@ -42,7 +45,7 @@ function KitchenNavbar() {
 
                         <button className="btn btn-outline-light d-flex align-items-center">
                             <LogOut size={18} className="me-1" />
-                            <span className="d-none d-md-inline">Cerrar Sesión</span>
+                            {store.isAuthenticated &&  <span className="d-none d-md-inline" onClick={handleLogout}>Cerrar Sesión</span>}
                         </button>
                     </div>
                 </div>
