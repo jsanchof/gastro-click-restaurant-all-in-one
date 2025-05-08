@@ -308,6 +308,7 @@ def handle_add_dish():
 
         name = data.get("name")
         description = data.get("description")
+        url_img = data.get("url_img")
         price = data.get("price")
         type_str = (data.get("type") or "").upper()
 
@@ -329,7 +330,7 @@ def handle_add_dish():
 
         type = dish_type(type_str)
 
-        new_dish = Dishes(name=name, description=description,
+        new_dish = Dishes(name=name, description=description, url_img=url_img,
                           price=price, type=type, is_active=True)
 
         db.session.add(new_dish)
@@ -380,6 +381,8 @@ def update_dish(dish_id):
             dish.name = data["name"]
         if "description" in data:
             dish.description = data["description"]
+        if "url_img" in data:
+            dish.url_img = data["url_img"]
         if "price" in data:
             dish.price = data["price"]
         if "type" in data:
@@ -418,6 +421,7 @@ def handle_add_drink():
 
         name = data.get("name")
         description = data.get("description")
+        url_img = data.get("url_img")
         price = data.get("price")
         type_str = (data.get("type") or "").upper()
 
@@ -439,7 +443,7 @@ def handle_add_drink():
 
         type = drink_type(type_str)
 
-        new_drink = Drinks(name=name, description=description,
+        new_drink = Drinks(name=name, description=description, url_img = url_img,
                            price=price, type=type, is_active=True)
 
         db.session.add(new_drink)
@@ -490,6 +494,8 @@ def update_drink(drink_id):
             drink.name = data["name"]
         if "description" in data:
             drink.description = data["description"]
+        if "url_img" in data:
+            drink.url_img = data["url_img"]
         if "price" in data:
             drink.price = data["price"]
         if "type" in data:
@@ -516,6 +522,8 @@ def delete_drink(drink_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({"ok": False, "msg": str(e)}), 500
+
+        
 # Envio de correos formulario de contacto
 @app.route("/enviar", methods=['POST'])
 def handle_send_email():
