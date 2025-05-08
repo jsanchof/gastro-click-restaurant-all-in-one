@@ -22,6 +22,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import LayoutClient from "./layouts/LayoutClient";
 import CrearOrden from "./pages/user/CrearOrden";
 import MisOrdenes from "./pages/user/MisOrdenes";
+import {VerifyEmail} from "./pages/user/VerifyEmail";
 // Componentes Cocina
 import KitchenView from "./pages/kitchen/KitchenView";
 import LayoutKitchen from "./layouts/LayoutKitchen";
@@ -30,6 +31,7 @@ import AdminOrdenes from "./pages/admin/AdminOrdenes";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminProductos from "./pages/admin/AdminProductos";
 import LayoutAdmin from "./layouts/LayoutAdmin";
+
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
@@ -53,6 +55,7 @@ export const router = createBrowserRouter(
         <Route path="/menu" element={<Menu />} />
         <Route path="/reservas" element={<Reservas />} />
         <Route path="/editar-perfil" element={<EditarPerfil />} />
+        <Route path="/verify-email" element={<VerifyEmail />} />
       </Route>
 
       {/* Cliente */}
