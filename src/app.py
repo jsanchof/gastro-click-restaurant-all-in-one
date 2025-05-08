@@ -525,17 +525,22 @@ def delete_drink(drink_id):
 
         
 # Envio de correos formulario de contacto
-@app.route("/enviar", methods=['POST'])
-def handle_send_email():
+@app.route("/contacto", methods=['POST'])
+def handle_send_email_contacto():
     data = request.get_json(silent=True)
-    to = data.get('to')
-    subject = data.get('subject')
+    email = data.get('email')
     message = data.get('message')
     name = data.get('name')
 
+    subject = f"Nuevo mensaje de contacto de {name}"
+
+    admin_email = os.getenv('MAIL_USERNAME')
     #send_email(to, subject, message, is_html=False)
-    html_body = render_template("email_pagina_contacto.html", name=name)
-    send_email(to, subject, html_body, is_html=True)
+    html_user_body = render_template("email_pagina_contacto.html", name=name)
+    html_admin_body = render_template("email_pagina_contacto.html", name=name, message=message)
+
+    send_email(email, "Gracias por contactarnos", html_user_body, is_html=True)
+    send_email(admin_email, subject, html_admin_body, is_html=True)
     return jsonify({"msg": "Correo enviado con html"})
 
 
