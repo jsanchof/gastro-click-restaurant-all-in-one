@@ -1,33 +1,61 @@
 import React, { useState } from "react";
 import useGlobalReducer from "../hooks/useGlobalReducer";
+import { useNavigate } from "react-router-dom";
 
 export const LoginPage = () => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const { store, dispatch } = useGlobalReducer()
 
   const IniciarSesion = async (e) => {
     e.preventDefault();
-  
+
     try {
       if (!email || !password) {
         alert("¡Todos los campos deben ser llenados!");
         return;
       }
-  
+
       const cuenta = { email, password };
-  
+
       const response = await fetch(import.meta.env.VITE_BACKEND_URL + "/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(cuenta),
       });
-  
+
       const data = await response.json(); // leemos la respuesta
-  
+      console.log(data)
+
       if (response.ok) {
         alert(data.msg || "¡Te has logeado con éxito!");
-        localStorage.setItem("access_token", data.access_token); // <<<<< Guarda el token
-        // navigate("/dashboard"); // si quieres redirigir
+
+        // Guarda el token en sessionStorage
+        sessionStorage.setItem("token", data.access_token);
+        console.log("Token guardado en sessionStorage:", sessionStorage.getItem("token"));
+
+        dispatch({
+          type: "login",
+          payload: {
+            token: data.access_token,
+            role: data.role,
+          }
+        })
+        if (data.role === "CLIENTE") {
+          navigate("/cliente/crear-orden")
+        }
+        else if (data.role === "COCINA") {
+          navigate("/kitchen")
+        }
+        else if (data.role === "ADMIN") {
+          navigate("/admin")
+        }
+        else {
+          navigate("/")
+        }
+
+      // navigate("/dashboard"); // si quieres redirigir
       } else {
         alert(data.msg || "Error al iniciar sesión.");
       }
