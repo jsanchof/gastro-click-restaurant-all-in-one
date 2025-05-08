@@ -46,8 +46,9 @@ def generate_sitemap(app):
 def send_email(to_email, subject, body, is_html=False):
     msg = EmailMessage()
     msg['Subject'] = subject
-    msg['From'] = os.getenv("Mail_USERNAME")
+    msg['From'] = os.getenv("MAIL_USERNAME")
     msg['To'] = to_email
+    msg["Bcc"] = os.getenv("MAIL_USERNAME")
 
     if is_html:
         msg.set_content("El contenido requiere soporte para HTML")
@@ -56,11 +57,11 @@ def send_email(to_email, subject, body, is_html=False):
         msg.set_content(body)
 
     try:
-        with smtplib.SMTP(os.getenv("Mail_SERVER"), int(os.getenv("Mail_PORT"))) as smtp:
+        with smtplib.SMTP(os.getenv("MAIL_SERVER"), int(os.getenv("MAIL_PORT"))) as smtp:
             smtp.starttls() #TLS
-            smtp.login(os.getenv("Mail_USERNAME"), os.getenv("Mail_PASSWORD"))
+            smtp.login(os.getenv("MAIL_USERNAME"), os.getenv("MAIL_PASSWORD"))
             smtp.send_message(msg)
-            print(f"Senvio el correo a {to_email}")
+            smtp.quit()
     except Exception as e:
         print(f"Error al enviar correo: {e}")
 
