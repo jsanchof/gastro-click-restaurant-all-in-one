@@ -56,6 +56,8 @@ def handle_invalid_usage(error):
     return jsonify(error.to_dict()), error.status_code
 
 # generate sitemap with all your endpoints
+
+
 @app.route('/')
 def sitemap():
     if ENV == "development":
@@ -63,6 +65,8 @@ def sitemap():
     return send_from_directory(static_file_dir, 'index.html')
 
 # any other endpoint will try to serve it like a static file
+
+
 @app.route('/<path:path>', methods=['GET'])
 def serve_any_other_file(path):
     if not os.path.isfile(os.path.join(static_file_dir, path)):
@@ -70,6 +74,7 @@ def serve_any_other_file(path):
     response = send_from_directory(static_file_dir, path)
     response.cache_control.max_age = 0  # avoid cache memory
     return response
+
 
 @app.route('/register', methods=['POST'])
 def handle_register():
@@ -84,32 +89,34 @@ def handle_register():
         role_str = (data.get("role") or "").upper()
 
         if not all([name, last_name, phone_number, email, password, role_str]):
-            return jsonify({"msg":"Todos los campos son requeridos"}), 400
-        
-        existing_user = db.session.scalar(db.select(User).where(User.email == email))
+            return jsonify({"msg": "Todos los campos son requeridos"}), 400
+
+        existing_user = db.session.scalar(
+            db.select(User).where(User.email == email))
 
         if existing_user:
             return jsonify({"msg": "El usuario ya existe"}), 409
 
         if not name or not last_name or not phone_number or not role_str:
             return jsonify({"msg": "Todos los campos son requeridos"}), 400
-        
+
         valid_roles = [r.value for r in user_role]
         if role_str not in valid_roles:
             return jsonify({
                 "msg": "Rol inválido",
                 "valid_roles": valid_roles
             }), 400
-        
+
         role = user_role(role_str)
         print(role)
         password_hash = bcrypt.generate_password_hash(password).decode("utf-8")
 
-        new_user = User(name=name, last_name=last_name, phone_number=phone_number, email=email, password=password_hash, role=role, is_active=True)
+        new_user = User(name=name, last_name=last_name, phone_number=phone_number,
+                        email=email, password=password_hash, role=role, is_active=True)
 
         db.session.add(new_user)
         db.session.commit()
-        
+
         return jsonify({"ok": True, "msg": "Register was successfull..."}), 201
     except Exception as e:
         print("Error:", str(e))
@@ -153,8 +160,6 @@ def update_profile():
 
     return jsonify({"msg": "Perfil actualizado correctamente"}), 200
 
-
-
 @app.route('/login', methods=['POST'])
 def handle_login():
     try:
@@ -165,27 +170,27 @@ def handle_login():
         password = data.get("password")
 
         if not email or not password:
-            return jsonify({"msg":"Correo y contraseña requeridos"}), 400
-        
+            return jsonify({"msg": "Correo y contraseña requeridos"}), 400
+
         user = db.session.scalar(db.select(User).where(User.email == email))
         if not user:
             return jsonify({"msg": "El usuario no existe"}), 404
-        
+
         if not bcrypt.check_password_hash(user.password, password):
-            return jsonify({"msg":"El correo o la contraseña son incorrectos"}), 401
+            return jsonify({"msg": "El correo o la contraseña son incorrectos"}), 401
 
         # after confirminh the details are valid, generate the token
         user_role = user.role.value
         claims = {"role": user_role, "more details": "the details"}
         access_token = create_access_token(identity=str(email),additional_claims=claims)
-        
 
         return jsonify({"ok": True, "msg": "Login was successfull...", "access_token": access_token, "role": user_role}), 200
     except Exception as e:
         print("Error:", str(e))
         db.session.rollback()
-        return jsonify({"ok": False, "msg": str(e)}),500
-    
+        return jsonify({"ok": False, "msg": str(e)}), 500
+
+
 @app.route('/edit_user/<int:user_id>', methods=['PUT'])
 def edit_user(user_id):
     try:
@@ -210,7 +215,8 @@ def edit_user(user_id):
         if phone_number:
             user.phone_number = phone_number
         if password:
-            user.password = bcrypt.generate_password_hash(password).decode("utf-8")
+            user.password = bcrypt.generate_password_hash(
+                password).decode("utf-8")
         if role_str:
             valid_roles = [r.value for r in user_role]
             if role_str not in valid_roles:
@@ -228,8 +234,35 @@ def edit_user(user_id):
         print("Error:", str(e))
         db.session.rollback()
         return jsonify({"ok": False, "msg": str(e)}), 500
-    
-#Dishes endpoints
+
+
+@app.route('/delete/user', methods=['DELETE'])
+def delete_user():
+    try:
+        data = request.get_json(silent=True)
+        email = data.get("email")
+
+        if not email:
+            return jsonify({"msg": "El campo 'email' es requerido"}), 400
+
+        user = db.session.scalar(db.select(User).where(User.email == email))
+
+        if not user:
+            return jsonify({"msg": "Usuario no encontrado"}), 404
+
+        db.session.delete(user)
+        db.session.commit()
+
+        return jsonify({"ok": True, "msg": f"Usuario con email {email} eliminado correctamente"}), 200
+
+    except Exception as e:
+        print("Error al eliminar usuario:", str(e))
+        db.session.rollback()
+        return jsonify({"ok": False, "msg": str(e)}), 500
+
+# Dishes endpoints
+
+
 @app.route('/dishes', methods=['POST'])
 def handle_add_dish():
     try:
@@ -241,9 +274,10 @@ def handle_add_dish():
         type_str = (data.get("type") or "").upper()
 
         if not all([name, description, price, type_str]):
-            return jsonify({"msg":"Todos los campos son requeridos"}), 400
-        
-        existing_dish = db.session.scalar(db.select(Dishes).where(Dishes.name == name))
+            return jsonify({"msg": "Todos los campos son requeridos"}), 400
+
+        existing_dish = db.session.scalar(
+            db.select(Dishes).where(Dishes.name == name))
 
         if existing_dish:
             return jsonify({"msg": "El platillo ya existe"}), 409
@@ -254,43 +288,47 @@ def handle_add_dish():
                 "msg": "Tipo inválido",
                 "valid_types": valid_types
             }), 400
-        
+
         type = dish_type(type_str)
 
-        new_dish = Dishes(name=name, description=description, price=price, type=type, is_active=True)
+        new_dish = Dishes(name=name, description=description,
+                          price=price, type=type, is_active=True)
 
         db.session.add(new_dish)
         db.session.commit()
-        
+
         return jsonify({"ok": True, "msg": "Register dish was successfull..."}), 201
     except Exception as e:
         print("Error:", str(e))
         db.session.rollback()
         return jsonify({"ok": False, "msg": str(e)}), 500
 
+
 @app.route('/dishes', methods=['GET'])
 def get_all_dishes():
     try:
-        dishes = Dishes.query.all()  
-        dish_list = [dish.serialize() for dish in dishes] 
-        
+        dishes = Dishes.query.all()
+        dish_list = [dish.serialize() for dish in dishes]
+
         return jsonify(dish_list), 200
-    
+
     except Exception as e:
         return jsonify({"error": "Internal Server Error", "message": str(e)}), 500
-    
+
+
 @app.route('/dishes/<int:dish_id>', methods=['GET'])
 def get_dish_by_id(dish_id):
     try:
-        dish = Dishes.query.get(dish_id) 
+        dish = Dishes.query.get(dish_id)
         if dish is None:
             return jsonify({"error": "No se encontró el platillo"}), 404
 
-        return jsonify(dish.serialize()), 200 
-    
+        return jsonify(dish.serialize()), 200
+
     except Exception as e:
         return jsonify({"error": "Internal Server Error", "message": str(e)}), 500
-    
+
+
 @app.route('/dishes/<int:dish_id>', methods=['PUT'])
 def update_dish(dish_id):
     try:
@@ -316,10 +354,25 @@ def update_dish(dish_id):
     except Exception as e:
         return jsonify({"error": "Internal Server Error", "message": str(e)}), 500
     
+@app.route('/dishes/<int:dish_id>', methods=['DELETE'])
+def delete_dish(dish_id):
+    try:
+        dish = Dishes.query.get(dish_id)
+        if not dish:
+            return jsonify({"msg": "El platillo no fue encontrado"}), 404
+
+        db.session.delete(dish)
+        db.session.commit()
+
+        return jsonify({"ok": True, "msg": "Platillo eliminado exitosamente"}), 200
+
+    except Exception as e:
+        print("Error:", str(e))
+        db.session.rollback()
+        return jsonify({"ok": False, "msg": str(e)}), 500
 
 
-
-#Drinks endpoints
+# Drinks endpoints
 @app.route('/drinks', methods=['POST'])
 def handle_add_drink():
     try:
@@ -331,9 +384,10 @@ def handle_add_drink():
         type_str = (data.get("type") or "").upper()
 
         if not all([name, description, price, type_str]):
-            return jsonify({"msg":"Todos los campos son requeridos"}), 400
-        
-        existing_drink = db.session.scalar(db.select(Drinks).where(Drinks.name == name))
+            return jsonify({"msg": "Todos los campos son requeridos"}), 400
+
+        existing_drink = db.session.scalar(
+            db.select(Drinks).where(Drinks.name == name))
 
         if existing_drink:
             return jsonify({"msg": "La bebida ya existe"}), 409
@@ -344,43 +398,47 @@ def handle_add_drink():
                 "msg": "Tipo inválido",
                 "valid_types": valid_types
             }), 400
-        
+
         type = drink_type(type_str)
 
-        new_drink = Drinks(name=name, description=description, price=price, type=type, is_active=True)
+        new_drink = Drinks(name=name, description=description,
+                           price=price, type=type, is_active=True)
 
         db.session.add(new_drink)
         db.session.commit()
-        
+
         return jsonify({"ok": True, "msg": "Register drink was successfull..."}), 201
     except Exception as e:
         print("Error:", str(e))
         db.session.rollback()
         return jsonify({"ok": False, "msg": str(e)}), 500
 
+
 @app.route('/drinks', methods=['GET'])
 def get_all_drinks():
     try:
-        drinks = Drinks.query.all()  
-        drink_list = [drink.serialize() for drink in drinks] 
-        
+        drinks = Drinks.query.all()
+        drink_list = [drink.serialize() for drink in drinks]
+
         return jsonify(drink_list), 200
-    
+
     except Exception as e:
         return jsonify({"error": "Internal Server Error", "message": str(e)}), 500
-    
+
+
 @app.route('/drinks/<int:drink_id>', methods=['GET'])
 def get_drink_by_id(drink_id):
     try:
-        drink = Drinks.query.get(drink_id) 
+        drink = Drinks.query.get(drink_id)
         if drink is None:
             return jsonify({"error": "No se encontró la bebida"}), 404
 
-        return jsonify(drink.serialize()), 200 
-    
+        return jsonify(drink.serialize()), 200
+
     except Exception as e:
         return jsonify({"error": "Internal Server Error", "message": str(e)}), 500
-    
+
+
 @app.route('/drinks/<int:dish_id>', methods=['PUT'])
 def update_drink(drink_id):
     try:
@@ -405,7 +463,21 @@ def update_drink(drink_id):
 
     except Exception as e:
         return jsonify({"error": "Internal Server Error", "message": str(e)}), 500
+    
+@app.route('/drinks/<int:drink_id>', methods=['DELETE'])
+def delete_drink(drink_id):
+    try:
+        drink = Drinks.query.get(drink_id)
+        if not drink:
+            return jsonify({"error": "No se encontró la bebida"}), 404
 
+        db.session.delete(drink)
+        db.session.commit()
+
+        return jsonify({"ok": True, "msg": "Bebida eliminada correctamente"}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"ok": False, "msg": str(e)}), 500
 
 
 # this only runs if `$ python src/main.py` is executed
