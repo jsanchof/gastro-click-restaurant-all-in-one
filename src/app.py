@@ -64,7 +64,8 @@ def generate_verification_token(user_id):
 def send_verification_email(user_email, user_id):
     token = generate_verification_token(user_id)
     verification_url = f"{os.getenv("FRONT_VERIFICATION_URL")}/verify-email?token={token}"
-    html_body = render_template("email_verification_template.html", verification_url=verification_url)
+    
+    html_body = render_template("email_verification.html", verification_url=verification_url)
 
     send_email(user_email, "Verifica tu correo electrónico", html_body, is_html=True)
 
@@ -132,11 +133,11 @@ def handle_register():
         password_hash = bcrypt.generate_password_hash(password).decode("utf-8")
 
         new_user = User(name=name, last_name=last_name, phone_number=phone_number,
-                        email=email, password=password_hash, role=role, is_active=True)
+                        email=email, password=password_hash, role=role, is_active=False)
 
         db.session.add(new_user)
         db.session.commit()
-        send_verification_email(new_user.created_at, new_user.id)
+        send_verification_email(new_user.email, new_user.id)
         
         return jsonify({"ok": True, "msg": "Register was successfull..."}), 201
     except Exception as e:
