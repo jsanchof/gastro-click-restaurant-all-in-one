@@ -6,6 +6,7 @@ from api.models import db, User, Reservation, Table, reservation_status
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 from datetime import datetime
+from app import send_email_reservation
 
 api = Blueprint('api', __name__)
 
@@ -42,6 +43,8 @@ def create_reservation():
 
             db.session.add(new_reservation)
             db.session.commit()
+
+            send_email_reservation(data)
 
             return jsonify({"msg": "Reservación creada exitosamente", "reservation_id": new_reservation.id}), 201
 
