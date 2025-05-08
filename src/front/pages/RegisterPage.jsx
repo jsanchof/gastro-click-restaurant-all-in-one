@@ -25,7 +25,7 @@ export const RegisterPage = () => {
         password,
         role: "CLIENTE",
       };
-
+      
       const response = await fetch(import.meta.env.VITE_BACKEND_URL + "/register", {
         method: "POST",
         headers: {

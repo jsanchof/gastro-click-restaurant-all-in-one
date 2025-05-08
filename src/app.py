@@ -10,7 +10,7 @@ from api.models import db, User, user_role, Dishes, dish_type, Drinks, drink_typ
 from api.routes import api
 from api.admin import setup_admin
 from api.commands import setup_commands
-from flask_jwt_extended import create_access_token, JWTManager
+from flask_jwt_extended import create_access_token, JWTManager, get_jwt_identity, jwt_required
 from flask_cors import CORS
 from flask_bcrypt import Bcrypt
 
@@ -123,6 +123,42 @@ def handle_register():
         db.session.rollback()
         return jsonify({"ok": False, "msg": str(e)}), 500
 
+# Obtiene los datos del usuario registrado    
+@app.route('/profile', methods=['GET'])
+@jwt_required()
+def get_profile():
+    user_email = get_jwt_identity()
+    user = db.session.scalar(db.select(User).where(User.email == user_email)) 
+
+    if user is None:
+        return jsonify({"error": "Usuario no encontrado"}), 404
+
+    return jsonify({
+        "name": user.name,
+        "lastName": user.last_name,
+        "telephone": user.phone_number,
+        "email": user.email
+    }), 200
+
+# Actualiza los datos del usuario registrado
+@app.route('/profile', methods=['PUT'])
+@jwt_required()
+def update_profile():
+    user_email = get_jwt_identity()
+    user = db.session.scalar(db.select(User).where(User.email == user_email))
+
+    if user is None:
+        return jsonify({"error": "Usuario no encontrado"}), 404
+
+    data = request.get_json()
+    user.name = data.get("name", user.name)
+    user.last_name = data.get("lastName", user.last_name)
+    user.phone_number = data.get("telephone", user.phone_number)
+    user.email = data.get("email", user.email)
+
+    db.session.commit()
+
+    return jsonify({"msg": "Perfil actualizado correctamente"}), 200
 
 @app.route('/login', methods=['POST'])
 def handle_login():
@@ -144,11 +180,11 @@ def handle_login():
             return jsonify({"msg": "El correo o la contraseña son incorrectos"}), 401
 
         # after confirminh the details are valid, generate the token
-        claims = {"role": "admin", "more details": "the details"}
-        access_token = create_access_token(
-            identity=str(email), additional_claims=claims)
+        user_role = user.role.value
+        claims = {"role": user_role, "more details": "the details"}
+        access_token = create_access_token(identity=str(email),additional_claims=claims)
 
-        return jsonify({"ok": True, "msg": "Login was successfull...", "access_token": access_token}), 200
+        return jsonify({"ok": True, "msg": "Login was successfull...", "access_token": access_token, "role": user_role}), 200
     except Exception as e:
         print("Error:", str(e))
         db.session.rollback()
