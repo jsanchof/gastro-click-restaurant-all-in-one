@@ -3,6 +3,7 @@ import rigoImageUrl from "../assets/img/rigo-baby.jpg";
 import suhiSliderUrl from "../assets/img/Sushi-slider-1.jpg";
 import useGlobalReducer from "../hooks/useGlobalReducer.jsx";
 import { Link } from "react-router-dom";
+import { TestimonialPage } from "./user/TestimonialPage.jsx";
 
 export const Home = () => {
 
