@@ -33,6 +33,7 @@ def create_reservation():
                 user_id=data.get("user_id"),
                 guest_name=data["guest_name"],
                 guest_phone=data["guest_phone"],
+                email=data["email"],
                 quantity=data["quantity"],
                 table_id=data.get("table_id"),
                 start_date_time=datetime.strptime(
@@ -55,10 +56,38 @@ def create_reservation():
             reservations = Reservation.query.all()
             result = list(map(lambda x: x.serialize(), reservations))
             return jsonify(result), 200
-        
+
         except Exception as e:
             print(e)
             return jsonify({"error": "Error al obtener las reservaciones"}), 500
+
+# Actualiza una reserva existente
+
+
+@api.route('/reservations/<int:id>', methods=['PUT'])
+def update_reservation(id):
+    data = request.get_json()
+
+    reserva = Reservation.query.get(id)
+    if not reserva:
+        return jsonify({"error": "Reserva no encontrada"}), 404
+
+    reserva.guest_name = data.get('guest_name')
+    reserva.email = data.get('email')
+    reserva.guest_phone = data.get('guest_phone')
+    reserva.quantity = data.get('quantity')
+
+    if data.get('start_date_time'):
+        reserva.start_date_time = datetime.strptime(
+            data.get('start_date_time'), "%Y-%m-%d %H:%M:%S")
+
+    reserva.additional_details = data.get('additional_details')
+    reserva.status = data.get('status')
+
+    db.session.commit()
+
+    return jsonify({"message": "Reserva actualizada correctamente"})
+
 
 @api.route('/tables', methods=['POST', 'GET'])
 def handle_table():
@@ -84,13 +113,13 @@ def handle_table():
             db.session.rollback()
             print(e)
             return jsonify({"error": "Error al crear mesa"}), 500
-        
+
     if request.method == 'GET':
         try:
             tables = Table.query.all()
             result = list(map(lambda x: x.serialize(), tables))
             return jsonify(result), 200
-        
+
         except Exception as e:
             print(e)
             return jsonify({"error": "Error al obtener las mesas"}), 500
