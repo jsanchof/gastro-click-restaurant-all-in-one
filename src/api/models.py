@@ -120,6 +120,7 @@ class Reservation(db.Model):
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=True)
     guest_name: Mapped[str] = mapped_column(String(120), nullable=False)
     guest_phone: Mapped[str] = mapped_column(String(20), nullable=False)
+    email: Mapped[str] = mapped_column(String(120), nullable=False)
     quantity: Mapped[int] = mapped_column(Integer, nullable=False)
     table_id: Mapped[int] = mapped_column(ForeignKey("tables.id"), nullable=True)
     status: Mapped[reservation_status] = mapped_column(Enum(reservation_status), default=reservation_status.PENDIENTE)
@@ -137,6 +138,7 @@ class Reservation(db.Model):
             "user_id": self.user_id,
             "guest_name": self.guest_name,
             "guest_phone": self.guest_phone,
+            "email": self.email,
             "quantity": self.quantity,
             "table_id": self.table_id,
             "status": self.status.value,
