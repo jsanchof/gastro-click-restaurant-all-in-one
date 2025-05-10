@@ -10,7 +10,6 @@ export const Layout = () => {
         <ScrollToTop>
             <Navbar />
                 <Outlet />
-                <TestimonialPage/>
             <Footer />
         </ScrollToTop>
     )
