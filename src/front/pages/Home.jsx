@@ -36,31 +36,37 @@ export const Home = () => {
 	}, [])
 
 	return (
-		<div
-			className="p-5 text-center bg-image"
-			style={{
-				backgroundImage: 'url(https://insanelygoodrecipes.com/wp-content/uploads/2020/05/Sushi.jpg)',
-				height: 600,
-				backgroundSize: "cover",
-				backgroundPosition: "center",
-				position: "relative"
-			}}
-		>
+		<div>
 			<div
-				className="mask d-flex justify-content-center align-items-center h-100"
-				style={{ backgroundColor: "rgba(0, 0, 0, 0.39)" }}
+				className="p-5 text-center bg-image"
+				style={{
+					backgroundImage: 'url(https://insanelygoodrecipes.com/wp-content/uploads/2020/05/Sushi.jpg)',
+					height: 600,
+					backgroundSize: "cover",
+					backgroundPosition: "center",
+					position: "relative"
+				}}
 			>
-				<div className="text-white">
-					<h1 className="mb-3 fw-bold">¡Bienvenido a Nuestro Restaurante!</h1>
-					<p className="mb-4">
-						Reserva tu mesa y disfruta una experiencia inolvidable
-					</p>
-					<Link to="/reservas">
-						<button className="btn btn-danger btn-lg" href="#reservar">
-							Reserva Aquí
-						</button>
-					</Link>
+				<div
+					className="mask d-flex justify-content-center align-items-center h-100 mb-3"
+					style={{ backgroundColor: "rgba(0, 0, 0, 0.39)" }}
+				>
+					<div className="text-white">
+						<h1 className="mb-3 fw-bold">¡Bienvenido a Nuestro Restaurante!</h1>
+						<p className="mb-4">
+							Reserva tu mesa y disfruta una experiencia inolvidable
+						</p>
+						<Link to="/reservas">
+							<button className="btn btn-danger btn-lg" href="#reservar">
+								Reserva Aquí
+							</button>
+						</Link>
+					</div>
 				</div>
+
+			</div>
+			<div className="mt-5" >
+				<TestimonialPage />
 			</div>
 		</div>
 
