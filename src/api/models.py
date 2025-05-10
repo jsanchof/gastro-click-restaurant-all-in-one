@@ -54,6 +54,7 @@ class Dishes(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(120), nullable=False)
     description: Mapped[str] = mapped_column(String(120), nullable=False) 
+    url_img: Mapped[str] = mapped_column(String(200), nullable=False) 
     price: Mapped[float] = mapped_column(nullable=False)
     type: Mapped[dish_type] = mapped_column(Enum(dish_type, name="dish_type_enum",native_enum=False), nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean(), nullable=False)
@@ -66,6 +67,7 @@ class Dishes(db.Model):
             "id": self.id,
             "name": self.name,
             "description": self.description,
+            "url_img": self.url_img,
             "price": self.price,
             "type": self.type.value,
             "is_active": self.is_active,
@@ -83,7 +85,8 @@ class drink_type(PyEnum):
 class Drinks(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(120), nullable=False)
-    description: Mapped[str] = mapped_column(String(120), nullable=False) 
+    description: Mapped[str] = mapped_column(String(120), nullable=False)
+    url_img: Mapped[str] = mapped_column(String(200), nullable=False)  
     price: Mapped[float] = mapped_column(nullable=False)
     type: Mapped[drink_type] = mapped_column(Enum(drink_type, name="drink_type_enum",native_enum=False), nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean(), nullable=False)
@@ -96,6 +99,7 @@ class Drinks(db.Model):
             "id": self.id,
             "name": self.name,
             "description": self.description,
+            "url_img": self.url_img,
             "price": self.price,
             "type": self.type.value,
             "is_active": self.is_active,

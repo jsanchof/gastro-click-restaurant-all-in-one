@@ -4,6 +4,8 @@ This module takes care of starting the API Server, Loading the DB and Adding the
 from flask import Flask, request, jsonify, url_for, Blueprint
 from api.models import db, User, Reservation, Table, reservation_status, table_status
 from api.utils import generate_sitemap, APIException
+from api.models import db, User, Reservation, Table, reservation_status
+from api.utils import generate_sitemap, APIException, send_email_reservation
 from flask_cors import CORS
 from datetime import datetime
 
@@ -43,6 +45,8 @@ def create_reservation():
 
             db.session.add(new_reservation)
             db.session.commit()
+
+            send_email_reservation(data)
 
             return jsonify({"msg": "Reservación creada exitosamente", "reservation_id": new_reservation.id}), 201
 

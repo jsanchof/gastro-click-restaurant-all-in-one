@@ -14,12 +14,12 @@ export function Contacto() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch('https://effective-goldfish-wrgq95pvwj74h9xj7-3000.app.github.dev/contacto', {
+      const response = await fetch(import.meta.env.VITE_BACKEND_URL + '/contacto', {
         method: 'POST',
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify(data)
+        body: JSON.stringify(form)
       });
 
       const dataResponse = await response.json();

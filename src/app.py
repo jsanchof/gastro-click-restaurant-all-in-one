@@ -2,18 +2,18 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 import os
-from flask import Flask, request, jsonify, url_for, send_from_directory
+from flask import Flask, request, jsonify, url_for, send_from_directory, render_template
 from flask_migrate import Migrate
 from flask_swagger import swagger
-from api.utils import APIException, generate_sitemap
+from api.utils import APIException, generate_sitemap, send_email
 from api.models import db, User, user_role, Dishes, dish_type, Drinks, drink_type
 from api.routes import api
 from api.admin import setup_admin
 from api.commands import setup_commands
-from flask_jwt_extended import create_access_token, JWTManager, get_jwt_identity, jwt_required
+from flask_jwt_extended import create_access_token, JWTManager, get_jwt_identity, jwt_required, get_jwt, jwt_required
 from flask_cors import CORS
-from flask_bcrypt import Bcrypt
-
+from flask_bcrypt import Bcrypt 
+from datetime import timedelta
 
 ENV = "development" if os.getenv("FLASK_DEBUG") == "1" else "production"
 static_file_dir = os.path.join(os.path.dirname(
@@ -22,6 +22,7 @@ static_file_dir = os.path.join(os.path.dirname(
 app = Flask(__name__)
 
 app.config["JWT_SECRET_KEY"] = "da_secre_qi"
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=24)
 jwt = JWTManager(app)
 CORS(app)
 bcrypt = Bcrypt(app)
@@ -47,6 +48,26 @@ setup_commands(app)
 
 # Add all endpoints form the API with a "api" prefix
 app.register_blueprint(api, url_prefix='/api')
+
+# Functions to generate token and send verification frontend url
+# Generate verification token
+def generate_verification_token(user_id):
+    additional_claims = { "user_id": user_id }
+
+    token = create_access_token(
+        identity=str(user_id),
+        additional_claims=additional_claims,
+        expires_delta=timedelta(hours=24)
+    )
+    return token
+
+def send_verification_email(user_email, user_id):
+    token = generate_verification_token(user_id)
+    verification_url = f"{os.getenv("FRONT_VERIFICATION_URL")}/verify-email?token={token}"
+    
+    html_body = render_template("email_verification.html", verification_url=verification_url)
+
+    send_email(user_email, "Verifica tu correo electrónico", html_body, is_html=True)
 
 # Handle/serialize errors like a JSON object
 
@@ -112,11 +133,12 @@ def handle_register():
         password_hash = bcrypt.generate_password_hash(password).decode("utf-8")
 
         new_user = User(name=name, last_name=last_name, phone_number=phone_number,
-                        email=email, password=password_hash, role=role, is_active=True)
+                        email=email, password=password_hash, role=role, is_active=False)
 
         db.session.add(new_user)
         db.session.commit()
-
+        send_verification_email(new_user.email, new_user.id)
+        
         return jsonify({"ok": True, "msg": "Register was successfull..."}), 201
     except Exception as e:
         print("Error:", str(e))
@@ -159,6 +181,22 @@ def update_profile():
     db.session.commit()
 
     return jsonify({"msg": "Perfil actualizado correctamente"}), 200
+
+# Validar usuario o confirmar usuario
+@app.route("/verify-token", methods=['POST'])
+@jwt_required()
+def handle_verify_token():
+    try:
+        # Obtener el user_id desde los claims adicionales
+        claims = get_jwt() # Devuelve el payload completo (incluyendo los claims adicionales)
+        user_id = claims['user_id']
+        # Buscamos el usuario para actualizarlo en la bd
+        user = db.session.scalar(db.select(User).where(User.id == user_id))
+        user.is_active = True
+        db.session.commit()
+        return jsonify({"msg": "Correo verificado correctamente"}), 200
+    except Exception as e:
+        return jsonify({"msg": "Ocurrió un error al validar la cuenta"}), 500
 
 @app.route('/login', methods=['POST'])
 def handle_login():
@@ -270,6 +308,7 @@ def handle_add_dish():
 
         name = data.get("name")
         description = data.get("description")
+        url_img = data.get("url_img")
         price = data.get("price")
         type_str = (data.get("type") or "").upper()
 
@@ -291,7 +330,7 @@ def handle_add_dish():
 
         type = dish_type(type_str)
 
-        new_dish = Dishes(name=name, description=description,
+        new_dish = Dishes(name=name, description=description, url_img=url_img,
                           price=price, type=type, is_active=True)
 
         db.session.add(new_dish)
@@ -342,6 +381,8 @@ def update_dish(dish_id):
             dish.name = data["name"]
         if "description" in data:
             dish.description = data["description"]
+        if "url_img" in data:
+            dish.url_img = data["url_img"]
         if "price" in data:
             dish.price = data["price"]
         if "type" in data:
@@ -380,6 +421,7 @@ def handle_add_drink():
 
         name = data.get("name")
         description = data.get("description")
+        url_img = data.get("url_img")
         price = data.get("price")
         type_str = (data.get("type") or "").upper()
 
@@ -401,7 +443,7 @@ def handle_add_drink():
 
         type = drink_type(type_str)
 
-        new_drink = Drinks(name=name, description=description,
+        new_drink = Drinks(name=name, description=description, url_img = url_img,
                            price=price, type=type, is_active=True)
 
         db.session.add(new_drink)
@@ -452,6 +494,8 @@ def update_drink(drink_id):
             drink.name = data["name"]
         if "description" in data:
             drink.description = data["description"]
+        if "url_img" in data:
+            drink.url_img = data["url_img"]
         if "price" in data:
             drink.price = data["price"]
         if "type" in data:
@@ -478,6 +522,28 @@ def delete_drink(drink_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({"ok": False, "msg": str(e)}), 500
+
+        
+# Envio de correos formulario de contacto
+@app.route("/contacto", methods=['POST'])
+def handle_send_email_contacto():
+    data = request.get_json(silent=True)
+    email = data.get('email')
+    message = data.get('message')
+    name = data.get('name')
+
+    subject = f"Nuevo mensaje de contacto de {name}"
+
+    admin_email = os.getenv('MAIL_USERNAME')
+    #send_email(to, subject, message, is_html=False)
+    html_user_body = render_template("email_pagina_contacto.html", name=name)
+    html_admin_body = render_template("email_pagina_contacto.html", name=name, message=message)
+
+    send_email(email, "Gracias por contactarnos", html_user_body, is_html=True)
+    send_email(admin_email, subject, html_admin_body, is_html=True)
+    return jsonify({"msg": "Correo enviado con html"})
+
+
 
 
 # this only runs if `$ python src/main.py` is executed
