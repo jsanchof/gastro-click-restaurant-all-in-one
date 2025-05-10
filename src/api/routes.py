@@ -2,7 +2,7 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 from flask import Flask, request, jsonify, url_for, Blueprint
-from api.models import db, User, Reservation, Table, reservation_status
+from api.models import db, User, Reservation, Table, reservation_status, table_status
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 from datetime import datetime
@@ -49,7 +49,7 @@ def create_reservation():
         except Exception as e:
             db.session.rollback()
             print(e)
-            return jsonify({"error": "Error al crear reservación"}), 500
+            return jsonify({"error": str(e)}), 500
 
     if request.method == 'GET':
         try:
@@ -59,7 +59,7 @@ def create_reservation():
 
         except Exception as e:
             print(e)
-            return jsonify({"error": "Error al obtener las reservaciones"}), 500
+            return jsonify({"error": str(e)}), 500
 
 # Actualiza una reserva existente
 
@@ -82,7 +82,6 @@ def update_reservation(id):
             data.get('start_date_time'), "%Y-%m-%d %H:%M:%S")
 
     reserva.additional_details = data.get('additional_details')
-    reserva.status = data.get('status')
 
     db.session.commit()
 
@@ -101,7 +100,7 @@ def handle_table():
             new_table = Table(
                 number=data["number"],
                 chairs=data["chairs"],
-                status=reservation_status.PENDIENTE
+                status=table_status.LIBRE
             )
 
             db.session.add(new_table)
