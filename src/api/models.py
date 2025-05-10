@@ -124,9 +124,10 @@ class Reservation(db.Model):
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=True)
     guest_name: Mapped[str] = mapped_column(String(120), nullable=False)
     guest_phone: Mapped[str] = mapped_column(String(20), nullable=False)
+    email: Mapped[str] = mapped_column(String(120), nullable=False)
     quantity: Mapped[int] = mapped_column(Integer, nullable=False)
     table_id: Mapped[int] = mapped_column(ForeignKey("tables.id"), nullable=True)
-    status: Mapped[reservation_status] = mapped_column(Enum(reservation_status), default=reservation_status.PENDIENTE)
+    status: Mapped[reservation_status] = mapped_column(Enum(reservation_status, native_enum=False), default=reservation_status.PENDIENTE)
     start_date_time: Mapped[datetime] = mapped_column(DateTime, nullable=False)
     additional_details: Mapped[str] = mapped_column(Text, nullable=True)
     created_at: Mapped[DateTime] = mapped_column(DateTime(), default=func.now(), server_default=func.now(), nullable=False)
@@ -141,6 +142,7 @@ class Reservation(db.Model):
             "user_id": self.user_id,
             "guest_name": self.guest_name,
             "guest_phone": self.guest_phone,
+            "email": self.email,
             "quantity": self.quantity,
             "table_id": self.table_id,
             "status": self.status.value,
@@ -148,14 +150,21 @@ class Reservation(db.Model):
             "additional_details": self.additional_details,
             "created_at": self.created_at.isoformat() if self.created_at else None,
         }
-    
+
+# Reservation status
+class table_status(PyEnum):
+    LIBRE = "LIBRE"
+    RESERVADA = "RESERVADA"
+    OCUPADA = "OCUPADA"
+
 class Table(db.Model):
     __tablename__ = "tables"
 
     id: Mapped[int] = mapped_column(primary_key=True)
     number: Mapped[int] = mapped_column(Integer, nullable=False)
     chairs: Mapped[int] = mapped_column(Integer, nullable=False)
-    status: Mapped[reservation_status] = mapped_column(Enum(reservation_status), default=reservation_status.PENDIENTE)
+    status: Mapped[table_status] = mapped_column(Enum(table_status, native_enum=False))
+
 
     def serialize(self):
         return {

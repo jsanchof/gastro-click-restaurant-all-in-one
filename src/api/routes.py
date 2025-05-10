@@ -2,6 +2,8 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 from flask import Flask, request, jsonify, url_for, Blueprint
+from api.models import db, User, Reservation, Table, reservation_status, table_status
+from api.utils import generate_sitemap, APIException
 from api.models import db, User, Reservation, Table, reservation_status
 from api.utils import generate_sitemap, APIException, send_email_reservation
 from flask_cors import CORS
@@ -33,6 +35,7 @@ def create_reservation():
                 user_id=data.get("user_id"),
                 guest_name=data["guest_name"],
                 guest_phone=data["guest_phone"],
+                email=data["email"],
                 quantity=data["quantity"],
                 table_id=data.get("table_id"),
                 start_date_time=datetime.strptime(
@@ -50,17 +53,45 @@ def create_reservation():
         except Exception as e:
             db.session.rollback()
             print(e)
-            return jsonify({"error": "Error al crear reservación"}), 500
+            return jsonify({"error": str(e)}), 500
 
     if request.method == 'GET':
         try:
             reservations = Reservation.query.all()
             result = list(map(lambda x: x.serialize(), reservations))
             return jsonify(result), 200
-        
+
         except Exception as e:
             print(e)
-            return jsonify({"error": "Error al obtener las reservaciones"}), 500
+            return jsonify({"error": str(e)}), 500
+
+# Actualiza una reserva existente
+
+
+@api.route('/reservations/<int:id>', methods=['PUT'])
+def update_reservation(id):
+    data = request.get_json()
+
+    reserva = Reservation.query.get(id)
+    if not reserva:
+        return jsonify({"error": "Reserva no encontrada"}), 404
+
+    reserva.guest_name = data.get('guest_name')
+    reserva.email = data.get('email')
+    reserva.guest_phone = data.get('guest_phone')
+    reserva.quantity = data.get('quantity')
+    reserva.status = data.get('status')
+
+    if data.get('start_date_time'):
+        reserva.start_date_time = datetime.strptime(
+            data.get('start_date_time'), "%Y-%m-%d %H:%M:%S")
+
+    reserva.additional_details = data.get('additional_details')
+
+    db.session.commit()
+
+    return jsonify({"message": "Reserva actualizada correctamente"})
+
 
 @api.route('/tables', methods=['POST', 'GET'])
 def handle_table():
@@ -74,7 +105,7 @@ def handle_table():
             new_table = Table(
                 number=data["number"],
                 chairs=data["chairs"],
-                status=reservation_status.PENDIENTE
+                status=table_status.LIBRE
             )
 
             db.session.add(new_table)
@@ -86,13 +117,13 @@ def handle_table():
             db.session.rollback()
             print(e)
             return jsonify({"error": "Error al crear mesa"}), 500
-        
+
     if request.method == 'GET':
         try:
             tables = Table.query.all()
             result = list(map(lambda x: x.serialize(), tables))
             return jsonify(result), 200
-        
+
         except Exception as e:
             print(e)
             return jsonify({"error": "Error al obtener las mesas"}), 500
