@@ -76,6 +76,7 @@ def update_reservation(id):
     reserva.email = data.get('email')
     reserva.guest_phone = data.get('guest_phone')
     reserva.quantity = data.get('quantity')
+    reserva.status = data.get('status')
 
     if data.get('start_date_time'):
         reserva.start_date_time = datetime.strptime(
