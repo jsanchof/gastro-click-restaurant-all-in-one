@@ -12,8 +12,9 @@ from api.admin import setup_admin
 from api.commands import setup_commands
 from flask_jwt_extended import create_access_token, JWTManager, get_jwt_identity, jwt_required, get_jwt, jwt_required
 from flask_cors import CORS
-from flask_bcrypt import Bcrypt 
+from flask_bcrypt import Bcrypt
 from datetime import timedelta
+from sqlalchemy import select, func
 
 ENV = "development" if os.getenv("FLASK_DEBUG") == "1" else "production"
 static_file_dir = os.path.join(os.path.dirname(
@@ -40,6 +41,9 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 MIGRATE = Migrate(app, db, compare_type=True)
 db.init_app(app)
 
+# Esto permite importarlo desde otros archivos como hiciste en seed.py
+__all__ = ['app', 'db', 'bcrypt']
+
 # add the admin
 setup_admin(app)
 
@@ -51,8 +55,10 @@ app.register_blueprint(api, url_prefix='/api')
 
 # Functions to generate token and send verification frontend url
 # Generate verification token
+
+
 def generate_verification_token(user_id):
-    additional_claims = { "user_id": user_id }
+    additional_claims = {"user_id": user_id}
 
     token = create_access_token(
         identity=str(user_id),
@@ -61,13 +67,16 @@ def generate_verification_token(user_id):
     )
     return token
 
+
 def send_verification_email(user_email, user_id):
     token = generate_verification_token(user_id)
     verification_url = f"{os.getenv("FRONT_VERIFICATION_URL")}/verify-email?token={token}"
-    
-    html_body = render_template("email_verification.html", verification_url=verification_url)
 
-    send_email(user_email, "Verifica tu correo electrónico", html_body, is_html=True)
+    html_body = render_template(
+        "email_verification.html", verification_url=verification_url)
+
+    send_email(user_email, "Verifica tu correo electrónico",
+               html_body, is_html=True)
 
 # Handle/serialize errors like a JSON object
 
@@ -138,19 +147,21 @@ def handle_register():
         db.session.add(new_user)
         db.session.commit()
         send_verification_email(new_user.email, new_user.id)
-        
+
         return jsonify({"ok": True, "msg": "Register was successfull..."}), 201
     except Exception as e:
         print("Error:", str(e))
         db.session.rollback()
         return jsonify({"ok": False, "msg": str(e)}), 500
 
-# Obtiene los datos del usuario registrado    
+# Obtiene los datos del usuario registrado
+
+
 @app.route('/profile', methods=['GET'])
 @jwt_required()
 def get_profile():
     user_email = get_jwt_identity()
-    user = db.session.scalar(db.select(User).where(User.email == user_email)) 
+    user = db.session.scalar(db.select(User).where(User.email == user_email))
 
     if user is None:
         return jsonify({"error": "Usuario no encontrado"}), 404
@@ -163,6 +174,8 @@ def get_profile():
     }), 200
 
 # Actualiza los datos del usuario registrado
+
+
 @app.route('/profile', methods=['PUT'])
 @jwt_required()
 def update_profile():
@@ -183,12 +196,14 @@ def update_profile():
     return jsonify({"msg": "Perfil actualizado correctamente"}), 200
 
 # Validar usuario o confirmar usuario
+
+
 @app.route("/verify-token", methods=['POST'])
 @jwt_required()
 def handle_verify_token():
     try:
         # Obtener el user_id desde los claims adicionales
-        claims = get_jwt() # Devuelve el payload completo (incluyendo los claims adicionales)
+        claims = get_jwt()  # Devuelve el payload completo (incluyendo los claims adicionales)
         user_id = claims['user_id']
         # Buscamos el usuario para actualizarlo en la bd
         user = db.session.scalar(db.select(User).where(User.id == user_id))
@@ -197,6 +212,7 @@ def handle_verify_token():
         return jsonify({"msg": "Correo verificado correctamente"}), 200
     except Exception as e:
         return jsonify({"msg": "Ocurrió un error al validar la cuenta"}), 500
+
 
 @app.route('/login', methods=['POST'])
 def handle_login():
@@ -220,7 +236,8 @@ def handle_login():
         # after confirminh the details are valid, generate the token
         user_role = user.role.value
         claims = {"role": user_role, "more details": "the details"}
-        access_token = create_access_token(identity=str(email),additional_claims=claims)
+        access_token = create_access_token(
+            identity=str(email), additional_claims=claims)
 
         return jsonify({"ok": True, "msg": "Login was successfull...", "access_token": access_token, "role": user_role}), 200
     except Exception as e:
@@ -237,6 +254,7 @@ def edit_user(user_id):
         name = data.get("name")
         last_name = data.get("last_name")
         phone_number = data.get("phone_number")
+        email = data.get("email")
         password = data.get("password")
         role_str = (data.get("role") or "").upper()
 
@@ -244,14 +262,21 @@ def edit_user(user_id):
 
         if not user:
             return jsonify({"msg": "Usuario no encontrado"}), 404
-        if "email" in data:
-            return jsonify({"msg": "No puedes actualizar el email"}), 400
+
+        # Actualizar campos si están presentes en la solicitud
         if name:
             user.name = name
         if last_name:
             user.last_name = last_name
         if phone_number:
             user.phone_number = phone_number
+        if email:
+            # Verificar si el email ya existe en otro usuario
+            existing_user = User.query.filter(
+                User.email == email, User.id != user_id).first()
+            if existing_user:
+                return jsonify({"msg": "El correo electrónico ya está en uso"}), 400
+            user.email = email
         if password:
             user.password = bcrypt.generate_password_hash(
                 password).decode("utf-8")
@@ -267,6 +292,9 @@ def edit_user(user_id):
         db.session.commit()
 
         return jsonify({"ok": True, "msg": "Usuario actualizado correctamente"}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"msg": f"Error al actualizar usuario: {str(e)}"}), 500
 
     except Exception as e:
         print("Error:", str(e))
@@ -297,6 +325,79 @@ def delete_user():
         print("Error al eliminar usuario:", str(e))
         db.session.rollback()
         return jsonify({"ok": False, "msg": str(e)}), 500
+
+
+@app.route('/users', methods=['GET'])
+def listar_usuarios():
+    try:
+        page = int(request.args.get("page", 1))
+        per_page = int(request.args.get("per_page", 10))
+        is_active_param = request.args.get("is_active")
+        role_param = request.args.get("role")
+        email_search = request.args.get("email", "").strip()
+
+        stmt_base = select(User)
+
+        # Filtro por is_active
+        if is_active_param is not None:
+            if is_active_param.lower() == "true":
+                stmt_base = stmt_base.where(User.is_active == True)
+            elif is_active_param.lower() == "false":
+                stmt_base = stmt_base.where(User.is_active == False)
+            else:
+                return jsonify({"error": "El parámetro 'is_active' debe ser 'true' o 'false'"}), 400
+
+        # Filtro por role
+        if role_param:
+            role_upper = role_param.upper()
+            try:
+                role_enum = user_role[role_upper]
+                stmt_base = stmt_base.where(User.role == role_enum)
+            except KeyError:
+                return jsonify({"error": f"Rol inválido. Debe ser uno de: {[r.name for r in user_role]}"}), 400
+
+        # Filtro por email (búsqueda parcial, insensible a mayúsculas)
+        if email_search:
+            stmt_base = stmt_base.where(User.email.ilike(f"%{email_search}%"))
+
+        # Total con filtros
+        total = db.session.scalar(select(func.count()).select_from(stmt_base.subquery()))
+
+        # Paginación
+        stmt = (
+            stmt_base
+            .order_by(User.created_at.desc())
+            .offset((page - 1) * per_page)
+            .limit(per_page)
+        )
+
+        users = db.session.scalars(stmt).all()
+
+        return jsonify({
+            "total": total,
+            "page": page,
+            "per_page": per_page,
+            "pages": (total + per_page - 1) // per_page,
+            "items": [user.serialize() for user in users]
+        }), 200
+
+    except Exception as e:
+        print("Error al listar usuarios:", e)
+        return jsonify({"error": "Error al obtener los usuarios"}), 500
+
+@app.route('/users/<int:id>', methods=['GET'])
+def obtener_usuario_por_id(id):
+    try:
+        user = db.session.get(User, id)
+
+        if not user:
+            return jsonify({"error": "Usuario no encontrado"}), 404
+
+        return jsonify(user.serialize()), 200
+
+    except Exception as e:
+        print("Error al obtener usuario por ID:", e)
+        return jsonify({"error": "Error al buscar el usuario"}), 500
 
 # Dishes endpoints
 
@@ -394,7 +495,8 @@ def update_dish(dish_id):
 
     except Exception as e:
         return jsonify({"error": "Internal Server Error", "message": str(e)}), 500
-    
+
+
 @app.route('/dishes/<int:dish_id>', methods=['DELETE'])
 def delete_dish(dish_id):
     try:
@@ -443,7 +545,7 @@ def handle_add_drink():
 
         type = drink_type(type_str)
 
-        new_drink = Drinks(name=name, description=description, url_img = url_img,
+        new_drink = Drinks(name=name, description=description, url_img=url_img,
                            price=price, type=type, is_active=True)
 
         db.session.add(new_drink)
@@ -507,7 +609,8 @@ def update_drink(drink_id):
 
     except Exception as e:
         return jsonify({"error": "Internal Server Error", "message": str(e)}), 500
-    
+
+
 @app.route('/drinks/<int:drink_id>', methods=['DELETE'])
 def delete_drink(drink_id):
     try:
@@ -523,7 +626,7 @@ def delete_drink(drink_id):
         db.session.rollback()
         return jsonify({"ok": False, "msg": str(e)}), 500
 
-        
+
 # Envio de correos formulario de contacto
 @app.route("/contacto", methods=['POST'])
 def handle_send_email_contacto():
@@ -535,15 +638,14 @@ def handle_send_email_contacto():
     subject = f"Nuevo mensaje de contacto de {name}"
 
     admin_email = os.getenv('MAIL_USERNAME')
-    #send_email(to, subject, message, is_html=False)
+    # send_email(to, subject, message, is_html=False)
     html_user_body = render_template("email_pagina_contacto.html", name=name)
-    html_admin_body = render_template("email_pagina_contacto.html", name=name, message=message)
+    html_admin_body = render_template(
+        "email_pagina_contacto.html", name=name, message=message)
 
     send_email(email, "Gracias por contactarnos", html_user_body, is_html=True)
     send_email(admin_email, subject, html_admin_body, is_html=True)
     return jsonify({"msg": "Correo enviado con html"})
-
-
 
 
 # this only runs if `$ python src/main.py` is executed
