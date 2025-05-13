@@ -671,8 +671,8 @@ def handle_send_email_contacto():
         return jsonify({"error": "Ocurrió un error al procesar la solicitud"}), 500
 
 
-@app.route("/init-admin", methods=["POST"])
-def init_admin():
+@app.route("/init-admin", methods=["GET"])
+def init_admin_db():
     secret = request.args.get("secret")
     expected_secret = os.getenv("INIT_SECRET", "supersecret123")
 
