@@ -50,7 +50,7 @@ export function Contacto() {
             {/* Datos de Contacto del Restaurante */}
             <h2 className="d-flex mb-4 text-secondary-emphasis">CONTÁCTANOS</h2>
             <div className="col-md-10 mb-4">
-              <p>Often merit stuff first oh up hills as he. Servants contempt as although addition dashwood is procured. Interest in yourself an do of numerous feelings cheerful confined.</p>
+              <p>Nos encontramos en una ubicación privilegiada, de fácil acceso para todos nuestros clientes y con opciones de estacionamiento cercanas para tu comodidad.</p>
             </div>
             <div className="row">
               <div className="col">
