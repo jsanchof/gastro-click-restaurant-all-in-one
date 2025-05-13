@@ -70,7 +70,12 @@ def generate_verification_token(user_id):
 
 def send_verification_email(user_email, user_id):
     token = generate_verification_token(user_id)
-    verification_url = f"{os.getenv("FRONTEND_URL")}/verify-email?token={token}"
+    frontend_url = os.getenv("FRONTEND_URL", "").strip('"').strip("'")
+
+    if not frontend_url:
+        raise RuntimeError("FRONTEND_URL no está definido correctamente")
+
+    verification_url = f"{frontend_url}/verify-email?token={token}"
 
     html_body = render_template(
         "email_verification.html", verification_url=verification_url)
