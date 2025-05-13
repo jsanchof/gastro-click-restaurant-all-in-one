@@ -72,7 +72,7 @@ export const Footer = () => (
 					<h6 className="fw-bold text-black">INFORMACIÓN</h6>
 					<ul className="list-unstyled">
 						<li>
-							<p className="text-secondary-emphasis text-decoration-none pt-3 pb-1">570 8th Ave, New York, NY 10018 United States</p>
+							<p className="text-secondary-emphasis text-decoration-none pt-3 pb-1">Blvd. Valle de San Javier, 42086, Pachuca de Soto, México</p>
 						</li>
 						<li>
 							<h6 className="fw-bold text-black">HORARIO:</h6>
