@@ -1,110 +1,113 @@
-import { Link } from "react-router-dom";
+"use client"
+
+import { useState } from "react"
+import { Link } from "react-router-dom"
+import { Calendar, Search, User, UserPlus, Menu, X } from "lucide-react"
+import "./mexican-navbar.css" // Importamos el archivo CSS específico
+import tacoLogo from '../assets/taco.png'
 
 export const Navbar = () => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
 
-	return (
-		<>
-			{/* Menú superior */}
-			<nav className="navbar navbar-light bg-light py-2 border-bottom">
-				<div className="container justify-content-between">
-					<div>
-						<span className="fw-semibold"><i className="fa-solid fa-calendar-days text-success"></i> Realiza tu primera reserva y recibe un 10% de desc.</span>
-					</div>
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen)
+  }
 
-					<div className="d-flex">
-						<form className="d-flex me-3" role="search">
-							<input
-								className="form-control me-2"
-								type="search"
-								placeholder="Buscar"
-								aria-label="Buscar"
-							/>
-						</form>
-						<Link to="/login">
-							<button className="btn btn-outline-primary">Acceder a Cuenta</button>
-						</Link>
-						<Link className="ps-3" to="/register">
-							<button className="btn btn-outline-primary">Registrarse</button>
-						</Link>
-					</div>
-				</div>
-			</nav>
+  return (
+    <div className="mexican-navbar-wrapper">
+      {/* Menú superior */}
+      <div className="mexican-top-bar">
+        <div className="container d-flex justify-content-between align-items-center">
+          <div className="d-none d-md-block">
+            <span className="mexican-promo-text">
+              <Calendar size={18} className="mexican-icon-danger me-2" />
+              Realiza tu primera reserva y recibe un 10% de descuento
+            </span>
+          </div>
 
-			{/* Menú principal */}
-			<nav className="navbar navbar-light bg-light py-4">
-				<div className="container">
-					<Link to="/">
-						<img
-							src="https://images.seeklogo.com/logo-png/36/2/sushi-ponta-negra-logo-png_seeklogo-364847.png"
-							alt="logo shushi"
-							className="img-fluid"
-							style={{ maxWidth: '80px', height: 'auto' }}
-						/>
-					</Link>
-					<div>
-						<nav className="navbar navbar-expand-lg navbar-light bg-light">
-							<div className="container-fluid">
+          <div className="d-flex align-items-center">
+            <div className="d-none d-md-block me-3">
+              <div className="mexican-search-group">
+                <span className="mexican-search-icon">
+                  <Search size={16} />
+                </span>
+                <input className="mexican-search-input" type="search" placeholder="Buscar" aria-label="Buscar" />
+              </div>
+            </div>
+            <Link to="/login" className="me-2 text-decoration-none">
+              <button className="mexican-btn-outline ">
+                <User size={18} className="me-2 d-none d-sm-inline" />
+                <span>Acceder</span>
+              </button>
+            </Link>
+            <Link to="/register" className="text-decoration-none">
+              <button className="mexican-btn-outline">
+                <UserPlus size={18} className="me-2 d-none d-sm-inline" />
+                <span>Registrarse</span>
+              </button>
+            </Link>
+          </div>
+        </div>
+      </div>
 
-								<button
-									className="navbar-toggler"
-									type="button"
-									data-bs-toggle="collapse"
-									data-bs-target="#navbarNav"
-									aria-controls="navbarNav"
-									aria-expanded="false"
-									aria-label="Toggle navigation"
-								>
-									<span className="navbar-toggler-icon" />
-								</button>
-								<div
-									className="collapse navbar-collapse justify-content-end"
-									id="navbarNav"
-								>
-									<ul className="navbar-nav">
-										<li className="nav-item fw-semibold pe-5">
-											<Link to="/" className="text-decoration-none">
-												<span className="nav-link active" aria-current="page">
-													Inicio
-												</span>
-											</Link>
-										</li>
-										<li className="nav-item fw-semibold pe-5">
-											<Link to="/menu" className="text-decoration-none">
-												<span className="nav-link">
-													Menú
-												</span>
-											</Link>
-										</li>
-										<li className="nav-item fw-semibold pe-5">
-											<Link to="/nosotros" className="text-decoration-none">
-												<span className="nav-link">
-													Nosotros
-												</span>
-											</Link>
+      {/* Menú principal */}
+      <nav className="mexican-main-nav">
+        <div className="container">
+          <Link to="/" className="mexican-brand">
+            <img
+              src={tacoLogo}
+              alt="El Mexicano Logo"
+              className="mexican-logo"
+            />
+            <span className="mexican-brand-text">
+              EL <span className="mexican-brand-highlight">MEXICANO</span>
+            </span>
+          </Link>
 
+          <button
+            className="mexican-toggler"
+            type="button"
+            onClick={toggleMenu}
+            aria-controls="mexicanNavbarContent"
+            aria-expanded={isMenuOpen ? "true" : "false"}
+            aria-label="Toggle navigation"
+          >
+            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
 
-										</li>
-										<li className="nav-item fw-semibold pe-5">
-											<Link to="/contacto" className="text-decoration-none">
-												<span className="nav-link">
-													Contacto
-												</span>
-											</Link>
-										</li>
-									</ul>
-								</div>
-							</div>
-						</nav>
+          <div className={`mexican-collapse ${isMenuOpen ? "mexican-show" : ""}`} id="mexicanNavbarContent">
+            <ul className="mexican-nav-list">
+              <li className="mexican-nav-item">
+                <Link to="/" className="mexican-nav-link mexican-active">
+                  Inicio
+                  <span className="mexican-active-indicator"></span>
+                </Link>
+              </li>
+              <li className="mexican-nav-item">
+                <Link to="/menu" className="mexican-nav-link">
+                  Menú
+                </Link>
+              </li>
+              <li className="mexican-nav-item">
+                <Link to="/nosotros" className="mexican-nav-link">
+                  Nosotros
+                </Link>
+              </li>
+              <li className="mexican-nav-item">
+                <Link to="/contacto" className="mexican-nav-link">
+                  Contacto
+                </Link>
+              </li>
+            </ul>
 
-					</div>
-					<div className="ml-auto">
-						<Link to="/reservas">
-							<button className="btn bg-red">Reserva Aquí</button>
-						</Link>
-					</div>
-				</div>
-			</nav>
-		</>
-
-	);
-};
+            <div className="mexican-cta-container">
+              <Link to="/reservas">
+                <button className="mexican-btn-primary">Reservar Mesa</button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </div>
+  )
+}

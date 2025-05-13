@@ -6,7 +6,7 @@ import { router } from "./routes";  // Import the router configuration
 import { StoreProvider } from './hooks/useGlobalReducer';  // Import the StoreProvider for global state management
 import { BackendURL } from './components/BackendURL';
 
-
+import { Toaster } from 'react-hot-toast';
 
 const Main = () => {
     
@@ -22,6 +22,7 @@ const Main = () => {
                 {/* Set up routing for the application */} 
                 <RouterProvider router={router}>
                 </RouterProvider>
+                <Toaster position="top-right" />
             </StoreProvider>
         </React.StrictMode>
     );

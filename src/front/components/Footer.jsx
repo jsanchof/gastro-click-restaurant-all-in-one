@@ -1,3 +1,4 @@
+import tacoLogo from "../assets/taco.png"
 export const Footer = () => (
 
 	<footer className="bg-light text-white pt-5 pb-3">
@@ -7,7 +8,7 @@ export const Footer = () => (
 				{/* Logotipo y redes */}
 				<div className="col-md-3 pe-5">
 					<img
-						src="https://images.seeklogo.com/logo-png/36/2/sushi-ponta-negra-logo-png_seeklogo-364847.png"
+						src={tacoLogo}
 						alt="Logo"
 						className="img-fluid"
 						style={{ maxWidth: '100px', height: 'auto' }}

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import useGlobalReducer from "../hooks/useGlobalReducer";
 import { useNavigate } from "react-router-dom";
+import { showError, showInfo, showSuccess } from "../utils/toastUtils";
 
 export const LoginPage = () => {
   const navigate = useNavigate();
@@ -13,7 +14,7 @@ export const LoginPage = () => {
 
     try {
       if (!email || !password) {
-        alert("¡Todos los campos deben ser llenados!");
+        showInfo("¡Todos los campos deben ser llenados!");
         return;
       }
 
@@ -29,7 +30,7 @@ export const LoginPage = () => {
       console.log(data)
 
       if (response.ok) {
-        alert(data.msg || "¡Te has logeado con éxito!");
+        showSuccess(data.msg || "¡Te has logeado con éxito!");
 
         // Guarda el token en sessionStorage
         sessionStorage.setItem("token", data.access_token);
@@ -57,11 +58,11 @@ export const LoginPage = () => {
 
       // navigate("/dashboard"); // si quieres redirigir
       } else {
-        alert(data.msg || "Error al iniciar sesión.");
+        showError(data.msg || "Error al iniciar sesión.");
       }
     } catch (error) {
       console.log(error);
-      alert("Hubo un error al procesar la solicitud.");
+      showError("Hubo un error al procesar la solicitud.");
     }
   };
 

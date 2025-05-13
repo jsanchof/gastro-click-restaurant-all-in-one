@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { GoogleMapLocation } from "../components/GoogleMapLocation";
+import { showError, showSuccess } from "../utils/toastUtils";
 
 export function Contacto() {
   const [form, setForm] = useState({ name: "", email: "", message: "" });
@@ -29,13 +30,14 @@ export function Contacto() {
         return;
       }
 
-      alert("Mensaje enviado correctamente");
+      showSuccess("Mensaje enviado correctamente");
       setForm({ name: "", email: "", message: "" });
       setErrorMessage("");
     
     } catch (error) {
       console.error("Error en el envío:", error);
       setErrorMessage("Ocurrió un error al enviar el mensaje.");
+      showError(errorMessage)
     }
   }
 
