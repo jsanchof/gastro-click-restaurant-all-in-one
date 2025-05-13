@@ -33,7 +33,7 @@ def create_reservation():
     if request.method == 'POST':
         data = request.get_json()
         try:
-            # Validar status de la reserva
+            # Validar status
             status_str = data.get("status", "PENDIENTE").upper()
             if status_str not in reservation_status.__members__:
                 return jsonify({
@@ -41,7 +41,7 @@ def create_reservation():
                 }), 400
             status_enum = reservation_status[status_str]
 
-            # Crear la reserva
+            # Crear reserva
             new_reservation = Reservation(
                 user_id=data.get("user_id"),
                 guest_name=data["guest_name"],
@@ -56,18 +56,19 @@ def create_reservation():
 
             db.session.add(new_reservation)
 
-            # Actualizar el estado de la mesa si corresponde
             if data.get("table_id") and status_enum in [reservation_status.PENDIENTE, reservation_status.CONFIRMADA]:
                 table = db.session.get(Table, data["table_id"])
                 if table:
                     table.status = table_status.RESERVADA
 
             db.session.commit()
-            send_email_reservation(data)
+
+            email_sent = send_email_reservation(data)
 
             return jsonify({
                 "msg": "Reservación creada exitosamente",
-                "reservation_id": new_reservation.id
+                "reservation_id": new_reservation.id,
+                "email_sent": email_sent
             }), 201
 
         except Exception as e:
@@ -291,9 +292,12 @@ def get_orders():
         page = int(request.args.get("page", 1))
         per_page = int(request.args.get("per_page", 10))
         search = request.args.get("search", "").strip()
+        status = request.args.get("status", "").strip()
 
+        # Base del query
         stmt = select(Order).join(Order.user, isouter=True)
 
+        # Filtro por búsqueda
         if search:
             stmt = stmt.where(
                 or_(
@@ -303,8 +307,18 @@ def get_orders():
                 )
             )
 
+        # Filtro por estado (convertido a Enum)
+        if status:
+            try:
+                enum_status = order_status(status)
+                stmt = stmt.where(Order.status == enum_status)
+            except ValueError:
+                return jsonify({"error": f"Estado '{status}' no es válido."}), 400
+
+        # Total antes del paginado
         total = db.session.scalar(select(func.count()).select_from(stmt.subquery()))
 
+        # Aplicar paginación
         stmt = (
             stmt.order_by(Order.created_at.desc())
             .offset((page - 1) * per_page)

@@ -70,7 +70,7 @@ def generate_verification_token(user_id):
 
 def send_verification_email(user_email, user_id):
     token = generate_verification_token(user_id)
-    verification_url = f"{os.getenv("FRONT_VERIFICATION_URL")}/verify-email?token={token}"
+    verification_url = f"{os.getenv("FRONTEND_URL")}/verify-email?token={token}"
 
     html_body = render_template(
         "email_verification.html", verification_url=verification_url)
@@ -198,9 +198,9 @@ def update_profile():
 # Validar usuario o confirmar usuario
 
 
-@app.route("/verify-token", methods=['POST'])
+@app.route("/verify-email", methods=['POST'])
 @jwt_required()
-def handle_verify_token():
+def handle_verify_email():
     try:
         # Obtener el user_id desde los claims adicionales
         claims = get_jwt()  # Devuelve el payload completo (incluyendo los claims adicionales)
@@ -230,6 +230,9 @@ def handle_login():
         if not user:
             return jsonify({"msg": "El usuario no existe"}), 404
 
+        if not user.is_active:
+            return jsonify({"msg": "Debe verificar su correo electrónico"}), 403
+        
         if not bcrypt.check_password_hash(user.password, password):
             return jsonify({"msg": "El correo o la contraseña son incorrectos"}), 401
 
@@ -630,22 +633,43 @@ def delete_drink(drink_id):
 # Envio de correos formulario de contacto
 @app.route("/contacto", methods=['POST'])
 def handle_send_email_contacto():
-    data = request.get_json(silent=True)
-    email = data.get('email')
-    message = data.get('message')
-    name = data.get('name')
+    try:
+        data = request.get_json(silent=True)
+        print(data)
+        if not data:
+            return jsonify({"error": "Falta el cuerpo de la solicitud"}), 400
 
-    subject = f"Nuevo mensaje de contacto de {name}"
+        name = data.get('name')
+        email = data.get('email')
+        message = data.get('message')
 
-    admin_email = os.getenv('MAIL_USERNAME')
-    # send_email(to, subject, message, is_html=False)
-    html_user_body = render_template("email_pagina_contacto.html", name=name)
-    html_admin_body = render_template(
-        "email_pagina_contacto.html", name=name, message=message)
+        if not name or not email or not message:
+            return jsonify({"error": "Se requieren los campos: name, email y message"}), 400
 
-    send_email(email, "Gracias por contactarnos", html_user_body, is_html=True)
-    send_email(admin_email, subject, html_admin_body, is_html=True)
-    return jsonify({"msg": "Correo enviado con html"})
+        subject = f"Nuevo mensaje de contacto de {name}"
+        admin_email = os.getenv("MAIL_USERNAME")
+
+        # Cuerpo HTML
+        html_user_body = render_template("email_pagina_contacto.html", name=name)
+        html_admin_body = render_template("email_pagina_contacto_admin.html", name=name, message=message, email=email)
+
+        # Enviar correos y verificar resultado
+        user_sent = send_email(email, "Gracias por contactarnos", html_user_body, is_html=True)
+        admin_sent = send_email(admin_email, subject, html_admin_body, is_html=True)
+
+        if not user_sent or not admin_sent:
+            return jsonify({
+                "msg": "El mensaje fue recibido, pero hubo un problema al enviar el correo.",
+                "user_sent": user_sent,
+                "admin_sent": admin_sent
+            }), 207  # 207 Multi-Status (respuesta parcial)
+
+        return jsonify({"msg": "Mensaje enviado correctamente"}), 200
+
+    except Exception as e:
+        print("❌ Error en /contacto:", e)
+        return jsonify({"error": "Ocurrió un error al procesar la solicitud"}), 500
+
 
 
 # this only runs if `$ python src/main.py` is executed
