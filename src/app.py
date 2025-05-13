@@ -671,6 +671,34 @@ def handle_send_email_contacto():
         return jsonify({"error": "Ocurrió un error al procesar la solicitud"}), 500
 
 
+@app.route("/init-admin", methods=["POST"])
+def init_admin():
+    secret = request.args.get("secret")
+    expected_secret = os.getenv("INIT_SECRET", "supersecret123")
+
+    if secret != expected_secret:
+        return jsonify({"msg": "Acceso no autorizado"}), 401
+
+    # Validación si ya existe
+    existing = db.session.scalar(db.select(User).where(User.email == os.getenv("ADMIN_EMAIL", "admin@email.com")))
+    if existing:
+        return jsonify({"msg": "El usuario admin ya existe"}), 200
+
+    hashed_password = bcrypt.generate_password_hash(os.getenv("ADMIN_PASSWORD", "admin123")).decode('utf-8')
+
+    admin = User(
+        name="Admin",
+        last_name="Principal",
+        phone_number="0999999999",
+        email=os.getenv("ADMIN_EMAIL", "admin@email.com"),
+        password=hashed_password,
+        role=user_role.ADMIN,
+        is_active=True
+    )
+    db.session.add(admin)
+    db.session.commit()
+
+    return jsonify({"msg": "Usuario admin creado exitosamente"}), 201
 
 # this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':
