@@ -27,7 +27,7 @@ class User(db.Model):
     password: Mapped[str] = mapped_column(String(128), nullable=False)
     role: Mapped[user_role] = mapped_column(
         Enum(user_role, name="user_role_enum", native_enum=False), nullable=False)
-    is_active: Mapped[bool] = mapped_column(Boolean(), nullable=False)
+    is_active: Mapped[bool] = mapped_column(Boolean(), nullable=False, default=False)
     created_at: Mapped[DateTime] = mapped_column(
         DateTime(), default=func.now(), server_default=func.now(), nullable=False)
     updated_at: Mapped[DateTime] = mapped_column(DateTime(), default=func.now(
