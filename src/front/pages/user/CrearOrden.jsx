@@ -2,6 +2,7 @@ import { useState, useEffect } from "react"
 import { Search, Filter } from 'lucide-react'
 import ProductCard from "../../components/user/ProductCard"
 import OrdenActual from "../../components/user/OrdenActual"
+import { showError, showInfo, showSuccess } from "../../utils/toastUtils"
 
 function CrearOrden() {
     const [productos, setProductos] = useState([])
@@ -117,7 +118,7 @@ function CrearOrden() {
     const crearOrden = async () => {
         // Verificar si hay productos en la orden
         if (ordenActual.length === 0) {
-            alert("No hay productos en la orden")
+            showInfo("No hay productos en la orden")
             return
         }
 
@@ -171,13 +172,13 @@ function CrearOrden() {
             const data = await response.json()
             
             // 8. Mostrar mensaje de éxito y resetear el estado
-            alert("Orden creada con éxito")
+            showSuccess("Orden creada con éxito")
             setOrdenActual([])
             setParaLlevar(false)
             
         } catch (error) {
             console.error("Error al crear la orden:", error)
-            alert(`Error al crear la orden: ${error.message}`)
+            showError(`Error al crear la orden: ${error.message}`)
         } finally {
             setLoading(false)
         }

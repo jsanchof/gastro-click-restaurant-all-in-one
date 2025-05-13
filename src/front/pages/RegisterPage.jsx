@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import useGlobalReducer from "../hooks/useGlobalReducer";
+import { showError, showInfo, showSuccess } from "../utils/toastUtils";
 
 export const RegisterPage = () => {
   const [name, setName] = useState("");
@@ -13,7 +14,7 @@ export const RegisterPage = () => {
 
     try {
       if (!name || !last_name || !phone_number || !email || !password) {
-        alert("¡Todos los campos deben ser llenados!");
+        showInfo("¡Todos los campos deben ser llenados!");
         return;
       }
 
@@ -35,13 +36,13 @@ export const RegisterPage = () => {
       });
 
       if (response.ok) {
-        alert("¡Cuenta registrada con éxito!");
+        showSuccess("¡Cuenta registrada con éxito!");
       } else {
-        alert("Error al registrar la cuenta.");
+        showError("Error al registrar la cuenta.");
       }
     } catch (error) {
       console.log(error);
-      alert("Hubo un error al procesar la solicitud.");
+      showError("Hubo un error al procesar la solicitud.");
     }
   };
 
