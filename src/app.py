@@ -242,7 +242,7 @@ def handle_login():
         access_token = create_access_token(
             identity=str(email), additional_claims=claims)
 
-        return jsonify({"ok": True, "msg": "Login was successfull...", "access_token": access_token, "role": user_role}), 200
+        return jsonify({"ok": True, "msg": "¡Login exitoso!", "access_token": access_token, "role": user_role}), 200
     except Exception as e:
         print("Error:", str(e))
         db.session.rollback()
