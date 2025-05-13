@@ -44,7 +44,7 @@ export const Home = () => {
       id: 1,
       name: "Enchiladas Verdes",
       description: "Tortillas de maíz rellenas de pollo, bañadas en salsa verde con crema y queso",
-      price: "$14.99",
+      price: "$145.50",
       image: "https://images.unsplash.com/photo-1534352956036-cd81e27dd615?q=80&w=500&auto=format&fit=crop",
       category: "Especialidad",
     },
@@ -52,7 +52,7 @@ export const Home = () => {
       id: 2,
       name: "Tacos al Pastor",
       description: "Tacos de carne de cerdo marinada con piña, cilantro y cebolla",
-      price: "$12.50",
+      price: "$110.50",
       image: "https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?q=80&w=500&auto=format&fit=crop",
       category: "Plato Principal",
     },
@@ -60,15 +60,15 @@ export const Home = () => {
       id: 3,
       name: "Guacamole Tradicional",
       description: "Aguacate fresco machacado con tomate, cebolla, cilantro y chile",
-      price: "$8.99",
+      price: "$56.00",
       image: "https://images.unsplash.com/photo-1600335895229-6e75511892c8?q=80&w=500&auto=format&fit=crop",
       category: "Entrante",
     },
     {
       id: 4,
-      name: "Chiles Rellenos",
-      description: "Chiles poblanos rellenos de queso, bañados en salsa de tomate casera",
-      price: "$15.50",
+      name: "Tacos de Bistec",
+      description: "Tacos de bistec rellenos de queso, bañados en salsa de tomate casera",
+      price: "$20.50",
       image: "https://images.unsplash.com/photo-1504544750208-dc0358e63f7f?q=80&w=500&auto=format&fit=crop",
       category: "Especialidad",
     },
@@ -111,17 +111,17 @@ export const Home = () => {
               <div className="col-md-4 mb-3 mb-md-0">
                 <Clock size={24} className="mb-2" />
                 <h5 className="mb-0">Horario</h5>
-                <p className="mb-0">Lun-Dom: 12:00 - 23:00</p>
+                <p className="mb-0">Lun-Dom: 08:00 - 22:30</p>
               </div>
               <div className="col-md-4 mb-3 mb-md-0">
                 <MapPin size={24} className="mb-2" />
                 <h5 className="mb-0">Ubicación</h5>
-                <p className="mb-0">Av. Principal 123, Ciudad</p>
+                <p className="mb-0">Blvd. Valle de San Javier, Pachuca, México</p>
               </div>
               <div className="col-md-4">
                 <Phone size={24} className="mb-2" />
                 <h5 className="mb-0">Reservas</h5>
-                <p className="mb-0">+123 456 7890</p>
+                <p className="mb-0">+55 1234 5678</p>
               </div>
             </div>
           </div>
@@ -377,7 +377,7 @@ export const Home = () => {
                   <MapPin size={24} className="text-danger me-3" />
                   <div>
                     <h5 className="mb-0">Dirección</h5>
-                    <p className="mb-0">Av. Principal 123, Ciudad</p>
+                    <p className="mb-0">Blvd. Valle de San Javier, Pachuca, México</p>
                   </div>
                 </div>
 
@@ -385,7 +385,7 @@ export const Home = () => {
                   <Phone size={24} className="text-danger me-3" />
                   <div>
                     <h5 className="mb-0">Teléfono</h5>
-                    <p className="mb-0">+123 456 7890</p>
+                    <p className="mb-0">+55 1234 5678</p>
                   </div>
                 </div>
 
@@ -393,7 +393,7 @@ export const Home = () => {
                   <Clock size={24} className="text-danger me-3" />
                   <div>
                     <h5 className="mb-0">Horario</h5>
-                    <p className="mb-0">Lunes a Domingo: 12:00 - 23:00</p>
+                    <p className="mb-0">Lunes a Domingo: 08:00 - 22:30</p>
                   </div>
                 </div>
               </div>
