@@ -63,7 +63,7 @@ def send_email(to_email, subject, body, is_html=False):
         msg["Subject"] = subject
         msg["From"] = smtp_user
         msg["To"] = to_email
-        msg["Bcc"] = smtp_user  # Copia oculta al remitente
+        # msg["Bcc"] = smtp_user  # Copia oculta al remitente
 
         if is_html:
             msg.set_content("Tu cliente de correo no soporta HTML.")
