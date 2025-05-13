@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verifica tu cuenta</title>
+    <title>Verifica tu cuenta - El Mexicano</title>
     <style type="text/css">
         /* Estilos compatibles con clientes de email */
         body,
@@ -14,7 +14,7 @@
             font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
             line-height: 1.6;
             color: #444444;
-            background-color: #f5f7fa;
+            background-color: #f8f9fa;
         }
 
         .container {
@@ -23,47 +23,62 @@
             background: #ffffff;
             border-radius: 8px;
             overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
 
         .header {
-            background-color: #4f46e5;
+            background-color: #dc3545;
             padding: 30px 20px;
             text-align: center;
+            background-image: url('https://i.ibb.co/sdPvCCZm/moroccan-flower.png');
+            background-size: cover;
+            background-blend-mode: multiply;
+            border-bottom: 5px solid #28a745;
+        }
+
+        .logo-container {
+            margin-bottom: 15px;
+        }
+
+        .logo {
+            width: 80px;
+            height: auto;
         }
 
         .header h1 {
             color: white;
             margin: 0;
-            font-size: 24px;
+            font-size: 28px;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
         }
 
         .content {
             padding: 30px;
+            background-color: #fff;
+            background-image: url('https://i.ibb.co/sdPvCCZm/moroccan-flower.png');
+            background-size: 200px;
+            background-repeat: repeat;
+            background-blend-mode: overlay;
+        }
+
+        .content-inner {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 25px;
+            border-radius: 8px;
+            border: 1px solid #f0f0f0;
         }
 
         .greeting {
-            font-size: 18px;
+            font-size: 20px;
             margin-bottom: 20px;
-            color: #111827;
+            color: #333;
+            font-weight: bold;
         }
 
         .instructions {
             margin-bottom: 30px;
             font-size: 16px;
-            color: #4b5563;
-        }
-
-        .verification-code {
-            background: #f3f4f6;
-            padding: 15px;
-            text-align: center;
-            font-size: 24px;
-            font-weight: bold;
-            letter-spacing: 2px;
-            color: #111827;
-            border-radius: 6px;
-            margin: 20px 0;
+            color: #555;
         }
 
         .button-container {
@@ -74,26 +89,51 @@
         .verify-button {
             display: inline-block;
             padding: 14px 28px;
-            background-color: #4f46e5;
+            background-color: #dc3545;
             color: white !important;
             text-decoration: none;
             border-radius: 6px;
             font-weight: bold;
             font-size: 16px;
+            border-bottom: 3px solid #bd2130;
+        }
+
+        .small-text {
+            font-size: 14px;
+            color: #777;
+            margin-top: 30px;
+            border-top: 1px dashed #ddd;
+            padding-top: 20px;
         }
 
         .footer {
             text-align: center;
             padding: 20px;
-            color: #6b7280;
+            color: #777;
             font-size: 14px;
-            border-top: 1px solid #e5e7eb;
+            border-top: 3px solid #f8f9fa;
+            background-color: #f8f9fa;
         }
 
-        .small-text {
-            font-size: 14px;
-            color: #6b7280;
-            margin-top: 30px;
+        .social-links {
+            margin: 15px 0;
+        }
+
+        .social-link {
+            display: inline-block;
+            margin: 0 10px;
+        }
+
+        .social-icon {
+            width: 24px;
+            height: 24px;
+        }
+
+        .divider {
+            height: 3px;
+            background: linear-gradient(to right, #28a745, #dc3545, #ffc107);
+            margin: 0;
+            padding: 0;
         }
 
         @media only screen and (max-width: 600px) {
@@ -111,39 +151,59 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>Verifica tu cuenta</h1>
+            <div class="logo-container">
+                <img src="https://i.ibb.co/0ybwWXtk/taco.png" alt="El Mexicano Logo" class="logo">
+            </div>
+            <h1>¡Verifica tu cuenta!</h1>
         </div>
+
+        <div class="divider"></div>
 
         <div class="content">
-            <div class="greeting">¡Hola, {{ nombre }}!</div>
+            <div class="content-inner">
+                <div class="greeting">¡Hola, {{ nombre }}!</div>
 
-            <div class="instructions">
-                <p>Gracias por registrarte. Por favor verifica tu dirección de correo electrónico haciendo clic en el
-                    botón de abajo </p>
-            </div>
+                <div class="instructions">
+                    <p>Gracias por registrarte en <strong>El Mexicano</strong>. Para disfrutar de la auténtica experiencia gastronómica mexicana, por favor verifica tu dirección de correo electrónico haciendo clic en el botón de abajo.</p>
+                </div>
 
-            <!-- Opción 1: Código de verificación -->
-            <!-- <div class="verification-code">
-                {{ codigo_verificacion }}
-            </div> -->
+                <div class="button-container">
+                    <a href="{{ verification_url }}" class="verify-button">Verificar mi cuenta</a>
+                </div>
 
-            <!-- Opción 2: Botón de verificación -->
-            <div class="button-container">
-                <a href="{{ verification_url }}" class="verify-button">Verificar mi cuenta</a>
-            </div>
-
-            <div class="small-text">
-                <p>Si no has creado una cuenta con nosotros, por favor ignora este mensaje.</p>
-                <p>Este enlace expirará en 24 horas.</p>
+                <div class="small-text">
+                    <p>Si no has creado una cuenta con nosotros, por favor ignora este mensaje.</p>
+                    <p>Este enlace expirará en 24 horas.</p>
+                    <p>¡Esperamos verte pronto en nuestro restaurante!</p>
+                </div>
             </div>
         </div>
 
+        <div class="divider"></div>
+
         <div class="footer">
-            <p>© 2023 Mi Aplicación. Todos los derechos reservados.</p>
+            <p>© 2024 El Mexicano. Todos los derechos reservados.</p>
+            
+            <div class="social-links">
+                <a href="#" class="social-link">
+                    <img src="https://i.ibb.co/Qp1SXBt/facebook.png" alt="Facebook" class="social-icon">
+                </a>
+                <a href="#" class="social-link">
+                    <img src="https://i.ibb.co/Qp1SXBt/instagram.png" alt="Instagram" class="social-icon">
+                </a>
+                <a href="#" class="social-link">
+                    <img src="https://i.ibb.co/Qp1SXBt/twitter.png" alt="Twitter" class="social-icon">
+                </a>
+            </div>
+            
             <p>
-                <a href="#" style="color: #4f46e5; text-decoration: none;">Ayuda</a> |
-                <a href="#" style="color: #4f46e5; text-decoration: none;">Privacidad</a> |
-                <a href="#" style="color: #4f46e5; text-decoration: none;">Términos</a>
+                <a href="#" style="color: #dc3545; text-decoration: none;">Ayuda</a> |
+                <a href="#" style="color: #dc3545; text-decoration: none;">Privacidad</a> |
+                <a href="#" style="color: #dc3545; text-decoration: none;">Términos</a>
+            </p>
+            
+            <p style="margin-top: 15px; font-style: italic; color: #999;">
+                Av. Principal 123, Ciudad | +123 456 7890
             </p>
         </div>
     </div>
