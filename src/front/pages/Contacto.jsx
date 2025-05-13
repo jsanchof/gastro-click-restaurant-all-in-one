@@ -58,7 +58,7 @@ export function Contacto() {
                   <i className="fa-solid fa-map-location-dot text-danger fa-2x"></i>
                 </div>
                 <div className="row">
-                  <p>570 8th Ave, New York, NY<br /> 10018 United States</p>
+                  <p>Blvd. Valle de San Javier, 42086,<br /> Pachuca de Soto, México</p>
                 </div>
                 <div className="row pb-3 pt-4">
                   <i className="fa-solid fa-envelope-open text-danger fa-2x"></i>
@@ -78,7 +78,7 @@ export function Contacto() {
                   <i className="fa-solid fa-phone text-danger fa-2x"></i>
                 </div>
                 <div className="row">
-                  <p>+123 456 7890<br />+123 456 9078</p>
+                  <p>+52 55 1234 5678<br />+52 55 3421 5678</p>
                 </div>
               </div>
             </div>
