@@ -27,12 +27,12 @@ export const Navbar = () => {
 
           <div className="d-flex align-items-center">
             <div className="d-none d-md-block me-3">
-              <div className="mexican-search-group">
+              {/* <div className="mexican-search-group">
                 <span className="mexican-search-icon">
                   <Search size={16} />
                 </span>
                 <input className="mexican-search-input" type="search" placeholder="Buscar" aria-label="Buscar" />
-              </div>
+              </div> */}
             </div>
             <Link to="/login" className="me-2 text-decoration-none">
               <button className="mexican-btn-outline ">
@@ -102,7 +102,8 @@ export const Navbar = () => {
 
             <div className="mexican-cta-container">
               <Link to="/reservas">
-                <button className="mexican-btn-primary">Reservar Mesa</button>
+                {/* <button className="mexican-btn-primary">Reservar Mesa</button> */}
+                <button className="btn bg-red">Reservar Mesa</button>
               </Link>
             </div>
           </div>
