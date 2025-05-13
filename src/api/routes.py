@@ -174,8 +174,10 @@ def update_reservation(id):
             if table:
                 if reserva.status == reservation_status.CONFIRMADA:
                     table.status = table_status.RESERVADA
+                elif reserva.status == reservation_status.PENDIENTE:
+                    table.status == table_status.OCUPADA
                 elif reserva.status == reservation_status.COMPLETADA:
-                    table.status = table_status.OCUPADA
+                    table.status = table_status.LIBRE
                 elif reserva.status == reservation_status.CANCELADA:
                     table.status = table_status.LIBRE
 
