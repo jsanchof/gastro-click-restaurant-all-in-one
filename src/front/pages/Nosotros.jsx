@@ -24,7 +24,7 @@ export const Nosotros = () => {
                             </div>
                         </div>
                         <div className="col-md-5">
-                            <img src="src/front/assets/img/kitchen.jpg" className="img-fluid rounded-start" alt="..." />
+                            <img src="https://i.imgur.com/sBSsvdA.jpeg" className="img-fluid rounded-start" alt="kitchen" />
                         </div>
                     </div>
                 </div>
