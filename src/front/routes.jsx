@@ -31,6 +31,7 @@ import AdminOrdenes from "./pages/admin/AdminOrdenes";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminProductos from "./pages/admin/AdminProductos";
 import LayoutAdmin from "./layouts/LayoutAdmin";
+import AdminReservas from "./pages/admin/AdminReservas";
 
 
 export const router = createBrowserRouter(
@@ -81,6 +82,7 @@ export const router = createBrowserRouter(
         <Route path="/admin" element={<AdminOrdenes />} />
         <Route path="/admin/usuarios" element={<AdminUsers />} />
         <Route path="/admin/productos" element={<AdminProductos />} />
+        <Route path="/admin/reservas" element={<AdminReservas />} />
       </Route>
 
       {/* Cocina */}

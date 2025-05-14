@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { GoogleMapLocation } from "../components/GoogleMapLocation";
+import { showError, showSuccess } from "../utils/toastUtils";
 
 export function Contacto() {
   const [form, setForm] = useState({ name: "", email: "", message: "" });
@@ -29,13 +30,14 @@ export function Contacto() {
         return;
       }
 
-      alert("Mensaje enviado correctamente");
+      showSuccess("Mensaje enviado correctamente");
       setForm({ name: "", email: "", message: "" });
       setErrorMessage("");
     
     } catch (error) {
       console.error("Error en el envío:", error);
       setErrorMessage("Ocurrió un error al enviar el mensaje.");
+      showError(errorMessage)
     }
   }
 
@@ -48,7 +50,7 @@ export function Contacto() {
             {/* Datos de Contacto del Restaurante */}
             <h2 className="d-flex mb-4 text-secondary-emphasis">CONTÁCTANOS</h2>
             <div className="col-md-10 mb-4">
-              <p>Often merit stuff first oh up hills as he. Servants contempt as although addition dashwood is procured. Interest in yourself an do of numerous feelings cheerful confined.</p>
+              <p>Nos encontramos en una ubicación privilegiada, de fácil acceso para todos nuestros clientes y con opciones de estacionamiento cercanas para tu comodidad.</p>
             </div>
             <div className="row">
               <div className="col">
@@ -56,7 +58,7 @@ export function Contacto() {
                   <i className="fa-solid fa-map-location-dot text-danger fa-2x"></i>
                 </div>
                 <div className="row">
-                  <p>570 8th Ave, New York, NY<br /> 10018 United States</p>
+                  <p>Blvd. Valle de San Javier, 42086,<br /> Pachuca de Soto, México</p>
                 </div>
                 <div className="row pb-3 pt-4">
                   <i className="fa-solid fa-envelope-open text-danger fa-2x"></i>
@@ -76,7 +78,7 @@ export function Contacto() {
                   <i className="fa-solid fa-phone text-danger fa-2x"></i>
                 </div>
                 <div className="row">
-                  <p>+123 456 7890<br />+123 456 9078</p>
+                  <p>+52 55 1234 5678<br />+52 55 3421 5678</p>
                 </div>
               </div>
             </div>

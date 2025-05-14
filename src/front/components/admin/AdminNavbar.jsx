@@ -17,7 +17,7 @@ function AdminNavbar({ toggleSidebar, toggleUserType }) {
           <span className="navbar-toggler-icon"></span>
         </button>
         <Link className="navbar-brand" style={{ color: " #a9b9c9" }} to="/admin">
-          <i class="fa-solid fa-house-user"></i> Dashboard del Administrador
+          <i className="fa-solid fa-house-user"></i> Dashboard del Administrador
         </Link>
         <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
           <span className="navbar-toggler-icon"></span>
@@ -26,17 +26,22 @@ function AdminNavbar({ toggleSidebar, toggleUserType }) {
           <ul className="navbar-nav ms-5">
             <li className="nav-item">
               <Link className="nav-link text-light" to="/admin">
-                <i class="fa-solid fa-basket-shopping"></i> Órdenes
+                <i className="fa-solid fa-basket-shopping"></i> Órdenes
               </Link>
             </li>
             <li className="nav-item">
               <Link className="nav-link text-light" to="/admin/usuarios">
-                <i class="fa-solid fa-users"></i> Usuarios
+                <i className="fa-solid fa-users"></i> Usuarios
+              </Link>
+            </li>
+            <li className="nav-item">
+              <Link className="nav-link text-light" to="/admin/reservas">
+              <i className="fa-solid fa-calendar-days"></i> Reservas
               </Link>
             </li>
             <li className="nav-item">
               <Link className="nav-link text-light" to="/admin/productos">
-                <i class="fa-solid fa-utensils"></i> Platillos y Bebidas
+                <i className="fa-solid fa-utensils"></i> Platillos y Bebidas
               </Link>
             </li>
           </ul>

@@ -1,49 +1,125 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { X } from 'lucide-react'
 
-function UserForm({ onClose, onSave, userToEdit = null }) {
+function UserForm({ onClose, onSave, userToEdit }) {
+    // Estados iniciales para los campos del formulario
     const [formData, setFormData] = useState({
-        nombre: userToEdit ? userToEdit.nombre : "",
-        correo: userToEdit ? userToEdit.correo : "",
+        name: "",
+        last_name: "",
+        phone_number: "",
+        email: "",
         password: "",
         confirmPassword: "",
-        rol: userToEdit ? userToEdit.rol : "cliente",
+        role: "CLIENTE" // Valor por defecto
     })
-
+    
+    // Estado para errores de validación
     const [errors, setErrors] = useState({})
+    // Estado para controlar si se está editando la contraseña
+    const [changePassword, setChangePassword] = useState(false)
 
+    // Cargar datos del usuario si estamos en modo edición
+    useEffect(() => {
+        if (userToEdit) {
+            setFormData({
+                name: userToEdit.name || "",
+                last_name: userToEdit.last_name || "",
+                phone_number: userToEdit.phone_number || "",
+                email: userToEdit.email || "",
+                password: "",
+                confirmPassword: "",
+                role: userToEdit.role || "CLIENTE"
+            })
+            // En modo edición, por defecto no cambiamos la contraseña
+            setChangePassword(false)
+        }
+    }, [userToEdit])
+
+    // Manejar cambios en los campos del formulario
     const handleChange = (e) => {
         const { name, value } = e.target
-        setFormData({
-            ...formData,
-            [name]: value,
-        })
+        setFormData(prev => ({
+            ...prev,
+            [name]: value
+        }))
+        
+        // Limpiar error del campo cuando el usuario empieza a escribir
+        if (errors[name]) {
+            setErrors(prev => ({
+                ...prev,
+                [name]: null
+            }))
+        }
     }
 
+    // Validar el formulario
     const validate = () => {
         const newErrors = {}
-        if (!formData.nombre.trim()) newErrors.nombre = "El nombre es requerido"
-        if (!formData.correo.trim()) newErrors.correo = "El correo es requerido"
-        else if (!/\S+@\S+\.\S+/.test(formData.correo)) newErrors.correo = "El correo no es válido"
-
-        if (!userToEdit) {
-            if (!formData.password) newErrors.password = "La contraseña es requerida"
-            else if (formData.password.length < 6) newErrors.password = "La contraseña debe tener al menos 6 caracteres"
-
-            if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = "Las contraseñas no coinciden"
+        
+        // Validar nombre
+        if (!formData.name || formData.name.trim() === "") {
+            newErrors.name = "El nombre es obligatorio"
         }
-
-        return newErrors
+        
+        // Validar apellido
+        if (!formData.last_name || formData.last_name.trim() === "") {
+            newErrors.last_name = "El apellido es obligatorio"
+        }
+        
+        // Validar teléfono
+        if (!formData.phone_number || formData.phone_number.trim() === "") {
+            newErrors.phone_number = "El teléfono es obligatorio"
+        }
+        
+        // Validar email (siempre, ya que ahora es editable)
+        if (!formData.email || formData.email.trim() === "") {
+            newErrors.email = "El correo electrónico es obligatorio"
+        } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+            newErrors.email = "El correo electrónico no es válido"
+        }
+        
+        // Validar contraseña (solo en creación o si se está cambiando)
+        if ((!userToEdit || changePassword) && (!formData.password || formData.password.trim() === "")) {
+            newErrors.password = "La contraseña es obligatoria"
+        } else if (changePassword && formData.password && formData.password.length < 6) {
+            newErrors.password = "La contraseña debe tener al menos 6 caracteres"
+        }
+        
+        // Validar confirmación de contraseña (solo si hay contraseña)
+        if ((!userToEdit || changePassword) && formData.password && formData.password !== formData.confirmPassword) {
+            newErrors.confirmPassword = "Las contraseñas no coinciden"
+        }
+        
+        // Validar rol
+        if (!formData.role || formData.role.trim() === "") {
+            newErrors.role = "El rol es obligatorio"
+        }
+        
+        setErrors(newErrors)
+        return Object.keys(newErrors).length === 0
     }
 
+    // Manejar envío del formulario
     const handleSubmit = (e) => {
         e.preventDefault()
-        const newErrors = validate()
-
-        if (Object.keys(newErrors).length === 0) {
-            onSave(formData)
-            onClose()
-        } else {
-            setErrors(newErrors)
+        
+        if (validate()) {
+            // Preparar datos para enviar
+            const dataToSave = {
+                name: formData.name,
+                last_name: formData.last_name,
+                phone_number: formData.phone_number,
+                email: formData.email, // Siempre incluir el email
+                role: formData.role
+            }
+            
+            // Añadir contraseña solo si es creación o se está cambiando
+            if (!userToEdit || changePassword) {
+                dataToSave.password = formData.password
+            }
+            
+            // Llamar a la función de guardado
+            onSave(dataToSave)
         }
     }
 
@@ -52,94 +128,157 @@ function UserForm({ onClose, onSave, userToEdit = null }) {
             <div className="modal-dialog modal-dialog-centered">
                 <div className="modal-content">
                     <div className="modal-header">
-                        <h5 className="modal-title">{userToEdit ? "Editar Usuario" : "Crear Usuario"}</h5>
-                        <button type="button" className="btn-close" onClick={onClose}></button>
+                        <h5 className="modal-title">
+                            {userToEdit ? "Editar Usuario" : "Crear Nuevo Usuario"}
+                        </h5>
+                        <button 
+                            type="button" 
+                            className="btn-close" 
+                            onClick={onClose}
+                            aria-label="Cerrar"
+                        ></button>
                     </div>
+                    
                     <div className="modal-body">
                         <form onSubmit={handleSubmit}>
                             <div className="mb-3">
-                                <label htmlFor="nombre" className="form-label">
-                                    Nombre
-                                </label>
+                                <label htmlFor="name" className="form-label">Nombre</label>
                                 <input
                                     type="text"
-                                    className={`form-control ${errors.nombre ? "is-invalid" : ""}`}
-                                    id="nombre"
-                                    name="nombre"
-                                    value={formData.nombre}
+                                    className={`form-control ${errors.name ? 'is-invalid' : ''}`}
+                                    id="name"
+                                    name="name"
+                                    value={formData.name}
                                     onChange={handleChange}
+                                    placeholder="Nombre"
                                 />
-                                {errors.nombre && <div className="invalid-feedback">{errors.nombre}</div>}
+                                {errors.name && <div className="invalid-feedback">{errors.name}</div>}
                             </div>
-
+                            
                             <div className="mb-3">
-                                <label htmlFor="correo" className="form-label">
-                                    Correo Electrónico
-                                </label>
+                                <label htmlFor="last_name" className="form-label">Apellido</label>
+                                <input
+                                    type="text"
+                                    className={`form-control ${errors.last_name ? 'is-invalid' : ''}`}
+                                    id="last_name"
+                                    name="last_name"
+                                    value={formData.last_name}
+                                    onChange={handleChange}
+                                    placeholder="Apellido"
+                                />
+                                {errors.last_name && <div className="invalid-feedback">{errors.last_name}</div>}
+                            </div>
+                            
+                            <div className="mb-3">
+                                <label htmlFor="phone_number" className="form-label">Teléfono</label>
+                                <input
+                                    type="text"
+                                    className={`form-control ${errors.phone_number ? 'is-invalid' : ''}`}
+                                    id="phone_number"
+                                    name="phone_number"
+                                    value={formData.phone_number}
+                                    onChange={handleChange}
+                                    placeholder="Teléfono"
+                                />
+                                {errors.phone_number && <div className="invalid-feedback">{errors.phone_number}</div>}
+                            </div>
+                            
+                            <div className="mb-3">
+                                <label htmlFor="email" className="form-label">Correo Electrónico</label>
                                 <input
                                     type="email"
-                                    className={`form-control ${errors.correo ? "is-invalid" : ""}`}
-                                    id="correo"
-                                    name="correo"
-                                    value={formData.correo}
+                                    className={`form-control ${errors.email ? 'is-invalid' : ''}`}
+                                    id="email"
+                                    name="email"
+                                    value={formData.email}
                                     onChange={handleChange}
+                                    placeholder="correo@ejemplo.com"
                                 />
-                                {errors.correo && <div className="invalid-feedback">{errors.correo}</div>}
+                                {errors.email && <div className="invalid-feedback">{errors.email}</div>}
                             </div>
-
-                            {!userToEdit && (
+                            
+                            {userToEdit && (
+                                <div className="mb-3 form-check">
+                                    <input
+                                        type="checkbox"
+                                        className="form-check-input"
+                                        id="changePassword"
+                                        checked={changePassword}
+                                        onChange={() => setChangePassword(!changePassword)}
+                                    />
+                                    <label className="form-check-label" htmlFor="changePassword">
+                                        Cambiar contraseña
+                                    </label>
+                                </div>
+                            )}
+                            
+                            {(!userToEdit || changePassword) && (
                                 <>
                                     <div className="mb-3">
-                                        <label htmlFor="password" className="form-label">
-                                            Contraseña
-                                        </label>
+                                        <label htmlFor="password" className="form-label">Contraseña</label>
                                         <input
                                             type="password"
-                                            className={`form-control ${errors.password ? "is-invalid" : ""}`}
+                                            className={`form-control ${errors.password ? 'is-invalid' : ''}`}
                                             id="password"
                                             name="password"
                                             value={formData.password}
                                             onChange={handleChange}
+                                            placeholder="Contraseña"
                                         />
                                         {errors.password && <div className="invalid-feedback">{errors.password}</div>}
                                     </div>
-
+                                    
                                     <div className="mb-3">
-                                        <label htmlFor="confirmPassword" className="form-label">
-                                            Confirmar Contraseña
-                                        </label>
+                                        <label htmlFor="confirmPassword" className="form-label">Confirmar Contraseña</label>
                                         <input
                                             type="password"
-                                            className={`form-control ${errors.confirmPassword ? "is-invalid" : ""}`}
+                                            className={`form-control ${errors.confirmPassword ? 'is-invalid' : ''}`}
                                             id="confirmPassword"
                                             name="confirmPassword"
                                             value={formData.confirmPassword}
                                             onChange={handleChange}
+                                            placeholder="Confirmar Contraseña"
                                         />
                                         {errors.confirmPassword && <div className="invalid-feedback">{errors.confirmPassword}</div>}
                                     </div>
                                 </>
                             )}
-
+                            
                             <div className="mb-3">
-                                <label htmlFor="rol" className="form-label">
-                                    Rol
-                                </label>
-                                <select className="form-select" id="rol" name="rol" value={formData.rol} onChange={handleChange}>
-                                    <option value="cliente">Cliente</option>
-                                    <option value="admin">Administrador</option>
+                                <label htmlFor="role" className="form-label">Rol</label>
+                                <select
+                                    className={`form-select ${errors.role ? 'is-invalid' : ''}`}
+                                    id="role"
+                                    name="role"
+                                    value={formData.role}
+                                    onChange={handleChange}
+                                >
+                                    <option value="">Seleccionar rol</option>
+                                    <option value="ADMIN">Administrador</option>
+                                    <option value="MESERO">Mesero</option>
+                                    <option value="COCINA">Cocina</option>
+                                    <option value="CLIENTE">Cliente</option>
                                 </select>
-                            </div>
-
-                            <div className="modal-footer">
-                                <button type="button" className="btn btn-secondary" onClick={onClose}>
-                                    Cancelar
-                                </button>
-                                <button type="submit" className="btn btn-primary">
-                                    {userToEdit ? "Actualizar" : "Crear"}
-                                </button>
+                                {errors.role && <div className="invalid-feedback">{errors.role}</div>}
                             </div>
                         </form>
+                    </div>
+                    
+                    <div className="modal-footer">
+                        <button 
+                            type="button" 
+                            className="btn btn-secondary" 
+                            onClick={onClose}
+                        >
+                            Cancelar
+                        </button>
+                        <button 
+                            type="button" 
+                            className="btn btn-primary" 
+                            onClick={handleSubmit}
+                        >
+                            {userToEdit ? "Actualizar" : "Crear"}
+                        </button>
                     </div>
                 </div>
             </div>

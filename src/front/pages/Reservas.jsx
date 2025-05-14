@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { showError, showSuccess } from '../utils/toastUtils';
 
 export const Reservas = () => {
     const [form, setForm] = useState({
@@ -30,7 +31,7 @@ export const Reservas = () => {
             const result = await res.json();
 
             if (res.ok) {
-                alert('¡Reserva enviada con éxito!');
+                showSuccess('¡Reserva enviada con éxito!');
                 setForm({
                     guest_name: '',
                     guest_phone: '',
@@ -40,11 +41,11 @@ export const Reservas = () => {
                     additional_details: ''
                 });
             } else {
-                alert(result.error || 'Error al enviar la reserva');
+                showError(result.error || 'Error al enviar la reserva');
             }
         } catch (error) {
             console.error(error);
-            alert('Error al conectar con el servidor');
+            showError('Error al conectar con el servidor');
         }
     };
 
