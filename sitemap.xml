@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://sample-service-name-0664.onrender.com/</loc>
+  </url>
+  <url>
+    <loc>https://sample-service-name-0664.onrender.com/register</loc>
+  </url>
+  <url>
+    <loc>https://sample-service-name-0664.onrender.com/contacto</loc>
+  </url>
+  <url>
+    <loc>https://sample-service-name-0664.onrender.com/login</loc>
+  </url>
+  <url>
+    <loc>https://sample-service-name-0664.onrender.com/nosotros</loc>
+  </url>
+  <url>
+    <loc>https://sample-service-name-0664.onrender.com/menu</loc>
+  </url>
+  <url>
+    <loc>https://sample-service-name-0664.onrender.com/reservas</loc>
+  </url>
+  <url>
+    <loc>https://sample-service-name-0664.onrender.com/editar-perfil</loc>
+  </url>
+  <url>
+    <loc>https://sample-service-name-0664.onrender.com/verify-email</loc>
+  </url>
+</urlset>

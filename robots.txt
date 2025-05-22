@@ -1,0 +1,4 @@
+User-agent: *
+Disallow:
+
+Sitemap: https://sample-service-name-0664.onrender.com/sitemap.xml

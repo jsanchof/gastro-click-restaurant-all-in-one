@@ -79,3 +79,32 @@ This boilerplate it's 100% read to deploy with Render.com and Heroku in a matter
 This template was built as part of the 4Geeks Academy [Coding Bootcamp](https://4geeksacademy.com/us/coding-bootcamp) by [Alejandro Sanchez](https://twitter.com/alesanchezr) and many other contributors. Find out more about our [Full Stack Developer Course](https://4geeksacademy.com/us/coding-bootcamps/part-time-full-stack-developer), and [Data Science Bootcamp](https://4geeksacademy.com/us/coding-bootcamps/datascience-machine-learning).
 
 You can find other templates and resources like this at the [school github page](https://github.com/4geeksacademy/).
+
+## 🚀 Git Workflow
+
+### Main Branches:
+- `main` → Stable, production-ready code.
+- `development` → Integrates all features/bugfixes for testing.
+
+### Feature Workflow:
+1. Create a feature:  
+   `./git-helper.sh feature add-login`
+2. After coding, merge to `development`:  
+   `./git-helper.sh merge-dev feature/add-login`
+3. Delete the branch:  
+   `./git-helper.sh delete feature/add-login`
+
+### Bugfix Workflow:
+Same as feature, just replace `feature` with `bugfix`.
+
+### Promote to Main:
+When ready to release:  
+`./git-helper.sh promote`
+
+### Tag Release:
+`./git-helper.sh tag v1.0.0`
+
+---
+
+This keeps `main` always production-ready.
+

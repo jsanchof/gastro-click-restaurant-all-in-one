@@ -8,22 +8,27 @@ import { BackendURL } from './components/BackendURL';
 
 import { Toaster } from 'react-hot-toast';
 
+import { Helmet, HelmetProvider } from 'react-helmet-async';
+
 const Main = () => {
-    
-    if(! import.meta.env.VITE_BACKEND_URL ||  import.meta.env.VITE_BACKEND_URL == "") return (
+
+    if (! import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_BACKEND_URL == "") return (
         <React.StrictMode>
-              <BackendURL/ >
+            <BackendURL />
         </React.StrictMode>
-        );
+    );
     return (
-        <React.StrictMode>  
-            {/* Provide global state to all components */}
-            <StoreProvider> 
-                {/* Set up routing for the application */} 
-                <RouterProvider router={router}>
-                </RouterProvider>
-                <Toaster position="top-right" />
-            </StoreProvider>
+        <React.StrictMode>
+            {/* Provide global state to all components 
+                and having all routed for SEO*/}
+            <HelmetProvider>
+                <StoreProvider>
+                    {/* Set up routing for the application */}
+                    <RouterProvider router={router}>
+                    </RouterProvider>
+                    <Toaster position="top-right" />
+                </StoreProvider>
+            </HelmetProvider>
         </React.StrictMode>
     );
 }
