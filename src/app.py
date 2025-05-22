@@ -15,6 +15,7 @@ from flask_cors import CORS
 from flask_bcrypt import Bcrypt
 from datetime import timedelta
 from sqlalchemy import select, func
+from api.sitemap import sitemap_bp
 
 ENV = "development" if os.getenv("FLASK_DEBUG") == "1" else "production"
 static_file_dir = os.path.join(os.path.dirname(
@@ -52,6 +53,7 @@ setup_commands(app)
 
 # Add all endpoints form the API with a "api" prefix
 app.register_blueprint(api, url_prefix='/api')
+app.register_blueprint(sitemap_bp)
 
 # Functions to generate token and send verification frontend url
 # Generate verification token
