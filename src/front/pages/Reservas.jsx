@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { showError, showSuccess } from '../utils/toastUtils';
+import { Container, Card, Input, Button, Alert } from '../components/common';
+import { colors, typography, spacing } from '../theme';
+import SEO from '../components/SEO';
 
 export const Reservas = () => {
     const [form, setForm] = useState({
@@ -10,6 +12,8 @@ export const Reservas = () => {
         start_date_time: '',
         additional_details: ''
     });
+
+    const [alert, setAlert] = useState(null);
 
     const handleChange = e => {
         setForm({ ...form, [e.target.name]: e.target.value });
@@ -31,7 +35,11 @@ export const Reservas = () => {
             const result = await res.json();
 
             if (res.ok) {
-                showSuccess('¡Reserva enviada con éxito!');
+                setAlert({
+                    variant: 'success',
+                    title: '¡Éxito!',
+                    message: '¡Reserva enviada con éxito!'
+                });
                 setForm({
                     guest_name: '',
                     guest_phone: '',
@@ -41,44 +49,124 @@ export const Reservas = () => {
                     additional_details: ''
                 });
             } else {
-                showError(result.error || 'Error al enviar la reserva');
+                setAlert({
+                    variant: 'error',
+                    title: 'Error',
+                    message: result.error || 'Error al enviar la reserva'
+                });
             }
         } catch (error) {
             console.error(error);
-            showError('Error al conectar con el servidor');
+            setAlert({
+                variant: 'error',
+                title: 'Error',
+                message: 'Error al conectar con el servidor'
+            });
         }
     };
 
+    const titleStyles = {
+        fontSize: typography.fontSize['2xl'],
+        fontWeight: typography.fontWeight.semibold,
+        color: colors.neutral.black,
+        marginBottom: spacing.lg,
+    };
+
     return (
-        <div className="container mt-4">
-            <form className="p-4 border rounded shadow" onSubmit={handleSubmit}>
-                <h4 className="mb-3">Reservar una Mesa</h4>
-                <div className="mb-3">
-                    <label className="form-label">Nombre</label>
-                    <input type="text" className="form-control" value={form.guest_name} name="guest_name" onChange={handleChange} required />
-                </div>
-                <div className="mb-3">
-                    <label className="form-label">Teléfono</label>
-                    <input type="text" className="form-control" value={form.guest_phone} name="guest_phone" onChange={handleChange} required />
-                </div>
-                <div className="mb-3">
-                    <label className="form-label">Correo electrónico</label>
-                    <input type="email" className="form-control" value={form.email} name="email" onChange={handleChange} required/>
-                </div>
-                <div className="mb-3">
-                    <label className="form-label">Cantidad de personas</label>
-                    <input type="number" className="form-control" value={form.quantity} name="quantity" min="1" onChange={handleChange} required />
-                </div>
-                <div className="mb-3">
-                    <label className="form-label">Fecha y hora</label>
-                    <input type="datetime-local" className="form-control" value={form.start_date_time} name="start_date_time" onChange={handleChange} required />
-                </div>
-                <div className="mb-3">
-                    <label className="form-label">Detalles adicionales</label>
-                    <textarea className="form-control" value={form.additional_details} name="additional_details" onChange={handleChange} />
-                </div>
-                <button type="submit" className="btn bg-red">Reservar</button>
-            </form>
-        </div>
+        <>
+            <SEO
+                title="Reservaciones | El Mexicano Restaurant"
+                description="Reserva tu mesa en El Mexicano Restaurant. Disfruta de una experiencia gastronómica única con auténtica comida mexicana. Reservaciones fáciles y rápidas."
+                keywords="reservaciones, restaurante mexicano, reservar mesa, cena mexicana, restaurante pachuca"
+                canonicalUrl="https://elmexicano-restaurant.com/reservas"
+                ogImage="/images/restaurant-interior.jpg"
+            />
+            <Container maxWidth="md">
+                {alert && (
+                    <Alert
+                        variant={alert.variant}
+                        title={alert.title}
+                        message={alert.message}
+                        onClose={() => setAlert(null)}
+                    />
+                )}
+
+                <Card>
+                    <form onSubmit={handleSubmit} style={{ padding: spacing.xl }}>
+                        <h2 style={titleStyles}>Reservar una Mesa</h2>
+
+                        <Input
+                            label="Nombre"
+                            type="text"
+                            value={form.guest_name}
+                            name="guest_name"
+                            onChange={handleChange}
+                            required
+                            fullWidth
+                        />
+
+                        <Input
+                            label="Teléfono"
+                            type="tel"
+                            value={form.guest_phone}
+                            name="guest_phone"
+                            onChange={handleChange}
+                            required
+                            fullWidth
+                        />
+
+                        <Input
+                            label="Correo electrónico"
+                            type="email"
+                            value={form.email}
+                            name="email"
+                            onChange={handleChange}
+                            required
+                            fullWidth
+                        />
+
+                        <Input
+                            label="Cantidad de personas"
+                            type="number"
+                            value={form.quantity}
+                            name="quantity"
+                            min="1"
+                            onChange={handleChange}
+                            required
+                            fullWidth
+                        />
+
+                        <Input
+                            label="Fecha y hora"
+                            type="datetime-local"
+                            value={form.start_date_time}
+                            name="start_date_time"
+                            onChange={handleChange}
+                            required
+                            fullWidth
+                        />
+
+                        <Input
+                            label="Detalles adicionales"
+                            type="textarea"
+                            value={form.additional_details}
+                            name="additional_details"
+                            onChange={handleChange}
+                            fullWidth
+                        />
+
+                        <div style={{ marginTop: spacing.xl }}>
+                            <Button
+                                variant="primary"
+                                type="submit"
+                                fullWidth
+                            >
+                                Reservar
+                            </Button>
+                        </div>
+                    </form>
+                </Card>
+            </Container>
+        </>
     );
 };

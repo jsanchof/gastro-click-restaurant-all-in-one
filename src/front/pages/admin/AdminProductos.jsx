@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react"
 import { Pencil, Trash2, Search, Coffee, Utensils, Plus } from "lucide-react"
+import { Container, Card, Input, Button, Alert, Table, Modal } from '../../components/common';
+import { colors, typography, spacing, borderRadius } from '../../theme';
 import ProductForm from "../../components/admin/ProductForm"
 
 function AdminProductos() {
@@ -14,7 +16,7 @@ function AdminProductos() {
 
   // Estados para paginación desde el backend
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const [alert, setAlert] = useState(null)
   const [paginaActual, setPaginaActual] = useState(1)
   const [elementosPorPagina, setElementosPorPagina] = useState(10)
   const [totalPaginas, setTotalPaginas] = useState(1)
@@ -23,7 +25,7 @@ function AdminProductos() {
   const fetchProductos = async (pagina = 1, porPagina = 10, buscar = "", tipo = "") => {
     try {
       setLoading(true)
-      setError(null)
+      setAlert(null)
 
       // Obtener el token de autenticación
       const token = sessionStorage.getItem("access_token")
@@ -66,7 +68,11 @@ function AdminProductos() {
       setTotalElementos(data.total || 0)
     } catch (err) {
       console.error("Error al cargar productos:", err)
-      setError(err.message)
+      setAlert({
+        variant: "danger",
+        title: "Error",
+        message: err.message
+      })
     } finally {
       setLoading(false)
     }
@@ -119,7 +125,11 @@ function AdminProductos() {
         setConfirmDelete(null)
       } catch (err) {
         console.error("Error al eliminar producto:", err)
-        setError(err.message)
+        setAlert({
+          variant: "danger",
+          title: "Error",
+          message: err.message
+        })
       } finally {
         setLoading(false)
       }
@@ -169,7 +179,11 @@ function AdminProductos() {
       setShowForm(false)
     } catch (err) {
       console.error(`Error al ${productToEdit ? "actualizar" : "crear"} producto:`, err)
-      setError(err.message)
+      setAlert({
+        variant: "danger",
+        title: "Error",
+        message: err.message
+      })
     } finally {
       setLoading(false)
     }
@@ -277,258 +291,327 @@ function AdminProductos() {
     }).format(price)
   }
 
+  const columns = [
+    { id: 'id', label: 'ID' },
+    {
+      id: 'imagen',
+      label: 'Imagen',
+      render: (row) => (
+        <img
+          src={row.url_img || "/placeholder.svg"}
+          alt={row.name}
+          style={{
+            width: "50px",
+            height: "50px",
+            objectFit: "cover",
+            borderRadius: borderRadius.sm
+          }}
+        />
+      )
+    },
+    { id: 'name', label: 'Nombre' },
+    {
+      id: 'tipo',
+      label: 'Tipo',
+      render: (row) => (
+        <span style={{
+          backgroundColor: colors.primary.main,
+          color: colors.neutral.white,
+          padding: `${spacing.xs} ${spacing.sm}`,
+          borderRadius: borderRadius.full,
+          display: 'flex',
+          alignItems: 'center',
+          gap: spacing.xs,
+          fontSize: typography.fontSize.sm,
+        }}>
+          {getTipoIcon(row.tipo)}
+          {row.tipo}
+        </span>
+      )
+    },
+    {
+      id: 'type',
+      label: 'Categoría',
+      render: (row) => (
+        <span style={{
+          backgroundColor: colors.status[getBadgeColor(row.tipo, row.type)],
+          color: colors.neutral.white,
+          padding: `${spacing.xs} ${spacing.sm}`,
+          borderRadius: borderRadius.full,
+          fontSize: typography.fontSize.sm,
+        }}>
+          {row.type}
+        </span>
+      )
+    },
+    {
+      id: 'price',
+      label: 'Precio',
+      render: (row) => formatPrice(row.price)
+    },
+    {
+      id: 'description',
+      label: 'Descripción',
+      render: (row) => (
+        <span style={{
+          display: 'inline-block',
+          maxWidth: '200px',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap'
+        }}>
+          {row.description}
+        </span>
+      )
+    },
+    {
+      id: 'is_active',
+      label: 'Estado',
+      render: (row) => (
+        <span style={{
+          backgroundColor: row.is_active ? colors.status.success : colors.status.error,
+          color: colors.neutral.white,
+          padding: `${spacing.xs} ${spacing.sm}`,
+          borderRadius: borderRadius.full,
+          fontSize: typography.fontSize.sm,
+        }}>
+          {row.is_active ? "Activo" : "Inactivo"}
+        </span>
+      )
+    },
+    {
+      id: 'actions',
+      label: 'Acciones',
+      render: (row) => (
+        <div style={{ display: 'flex', gap: spacing.sm }}>
+          <Button
+            variant="outline"
+            size="small"
+            onClick={() => handleEditProduct(row)}
+            title="Editar"
+          >
+            <Pencil size={16} />
+          </Button>
+          <Button
+            variant="outline"
+            size="small"
+            onClick={() => handleDeleteConfirm(row)}
+            title="Eliminar"
+          >
+            <Trash2 size={16} />
+          </Button>
+        </div>
+      )
+    }
+  ];
+
   return (
-    <div className="container-fluid">
-      <div className="card shadow-sm">
-        <div className="card-body">
-          <div className="d-flex justify-content-between align-items-center mb-4">
-            <h4 className="card-title mb-0">Gestión de Platillos y Bebidas</h4>
-            <button
-              className="btn"
+    <Container maxWidth="xl">
+      {alert && (
+        <Alert
+          variant={alert.variant}
+          title={alert.title}
+          message={alert.message}
+          onClose={() => setAlert(null)}
+        />
+      )}
+
+      <Card>
+        <div style={{ padding: spacing.xl }}>
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: spacing.xl
+          }}>
+            <h2 style={{
+              fontSize: typography.fontSize['2xl'],
+              fontWeight: typography.fontWeight.semibold,
+              margin: 0
+            }}>
+              Gestión de Platillos y Bebidas
+            </h2>
+            <Button
+              variant="primary"
               onClick={handleCreateProduct}
-              style={{ backgroundColor: "#27a745", color: "white" }}
             >
-              <Plus size={18} className="me-2" />
+              <Plus size={18} />
               Crear Nuevo
-            </button>
+            </Button>
           </div>
 
-          <div className="row mb-4">
-            <div className="col-md-6">
-              <div className="input-group">
-                <span className="input-group-text bg-light">
-                  <Search size={18} />
-                </span>
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="Buscar por nombre o descripción..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  onKeyPress={(e) => e.key === "Enter" && buscarProductos()}
-                />
-                <button className="btn btn-outline-secondary" type="button" onClick={buscarProductos}>
-                  Buscar
-                </button>
-              </div>
-            </div>
-            <div className="col-md-6">
-              <div className="btn-group w-100">
-                <button
-                  className={`btn ${filtroTipo === "" ? "btn-danger" : "btn-outline-danger"}`}
-                  onClick={() => {
-                    setFiltroTipo("")
-                    fetchProductos(1, elementosPorPagina, searchTerm, "")
-                  }}
-                >
-                  Todos
-                </button>
-                <button
-                  className={`btn ${filtroTipo === "COMIDA" ? "btn-danger" : "btn-outline-danger"}`}
-                  onClick={() => {
-                    setFiltroTipo("COMIDA")
-                    fetchProductos(1, elementosPorPagina, searchTerm, "COMIDA")
-                  }}
-                >
-                  <Utensils size={16} className="me-1" />
-                  Comidas
-                </button>
-                <button
-                  className={`btn ${filtroTipo === "BEBIDA" ? "btn-danger" : "btn-outline-danger"}`}
-                  onClick={() => {
-                    setFiltroTipo("BEBIDA")
-                    fetchProductos(1, elementosPorPagina, searchTerm, "BEBIDA")
-                  }}
-                >
-                  <Coffee size={16} className="me-1" />
-                  Bebidas
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div className="row mb-3">
-            <div className="col-md-3">
-              <label className="form-label">Elementos por página:</label>
-              <select
-                className="form-select"
-                value={elementosPorPagina}
-                onChange={(e) => cambiarElementosPorPagina(Number(e.target.value))}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+            gap: spacing.lg,
+            marginBottom: spacing.xl
+          }}>
+            <div style={{ display: 'flex', gap: spacing.sm }}>
+              <Input
+                type="text"
+                placeholder="Buscar por nombre o descripción..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onKeyPress={(e) => e.key === "Enter" && buscarProductos()}
+                fullWidth
+              />
+              <Button
+                variant="outline"
+                onClick={buscarProductos}
               >
-                <option value="5">5</option>
-                <option value="10">10</option>
-                <option value="25">25</option>
-                <option value="50">50</option>
-              </select>
+                <Search size={18} />
+              </Button>
+            </div>
+
+            <div style={{ display: 'flex', gap: spacing.sm }}>
+              <Button
+                variant={filtroTipo === "" ? "primary" : "outline"}
+                onClick={() => {
+                  setFiltroTipo("")
+                  fetchProductos(1, elementosPorPagina, searchTerm, "")
+                }}
+                fullWidth
+              >
+                Todos
+              </Button>
+              <Button
+                variant={filtroTipo === "COMIDA" ? "primary" : "outline"}
+                onClick={() => {
+                  setFiltroTipo("COMIDA")
+                  fetchProductos(1, elementosPorPagina, searchTerm, "COMIDA")
+                }}
+                fullWidth
+              >
+                <Utensils size={16} />
+                Comidas
+              </Button>
+              <Button
+                variant={filtroTipo === "BEBIDA" ? "primary" : "outline"}
+                onClick={() => {
+                  setFiltroTipo("BEBIDA")
+                  fetchProductos(1, elementosPorPagina, searchTerm, "BEBIDA")
+                }}
+                fullWidth
+              >
+                <Coffee size={16} />
+                Bebidas
+              </Button>
             </div>
           </div>
 
-          {error && (
-            <div className="alert alert-danger" role="alert">
-              {error}
-            </div>
-          )}
-
-          <div className="table-responsive">
-            <table className="table table-hover">
-              <thead className="table-light">
-                <tr>
-                  <th>ID</th>
-                  <th>Imagen</th>
-                  <th>Nombre</th>
-                  <th>Tipo</th>
-                  <th>Categoría</th>
-                  <th>Precio</th>
-                  <th>Descripción</th>
-                  <th>Estado</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {loading ? (
-                  <tr>
-                    <td colSpan="9" className="text-center py-4">
-                      <div className="spinner-border text-primary" role="status">
-                        <span className="visually-hidden">Cargando...</span>
-                      </div>
-                    </td>
-                  </tr>
-                ) : (
-                  productos.map((product) => (
-                    <tr key={product.id}>
-                      <td>{product.id}</td>
-                      <td>
-                        <img
-                          src={product.url_img || "/placeholder.svg"}
-                          alt={product.name}
-                          className="img-thumbnail"
-                          style={{ width: "50px", height: "50px", objectFit: "cover" }}
-                        />
-                      </td>
-                      <td>{product.name}</td>
-                      <td>
-                        <span className={`badge bg-primary rounded-pill d-flex align-items-center`}>
-                          {getTipoIcon(product.tipo)}
-                          {product.tipo}
-                        </span>
-                      </td>
-                      <td>
-                        <span className={`badge ${getBadgeColor(product.tipo, product.type)} rounded-pill`}>
-                          {product.type}
-                        </span>
-                      </td>
-                      <td>{formatPrice(product.price)}</td>
-                      <td>
-                        <span className="text-truncate d-inline-block" style={{ maxWidth: "200px" }}>
-                          {product.description}
-                        </span>
-                      </td>
-                      <td>
-                        <span className={`badge ${product.is_active ? "bg-success" : "bg-danger"} rounded-pill`}>
-                          {product.is_active ? "Activo" : "Inactivo"}
-                        </span>
-                      </td>
-                      <td>
-                        <div className="btn-group">
-                          <button
-                            className="btn btn-sm btn-outline-primary"
-                            onClick={() => handleEditProduct(product)}
-                            title="Editar"
-                          >
-                            <Pencil size={16} />
-                          </button>
-                          <button
-                            className="btn btn-sm btn-outline-danger"
-                            onClick={() => handleDeleteConfirm(product)}
-                            title="Eliminar"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-
-                {!loading && productos.length === 0 && (
-                  <tr>
-                    <td colSpan="9" className="text-center py-3">
-                      No se encontraron productos
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+          <div style={{ marginBottom: spacing.xl }}>
+            <Input
+              type="select"
+              label="Elementos por página"
+              value={elementosPorPagina}
+              onChange={(e) => cambiarElementosPorPagina(Number(e.target.value))}
+              style={{ width: '200px' }}
+            >
+              <option value="5">5</option>
+              <option value="10">10</option>
+              <option value="25">25</option>
+              <option value="50">50</option>
+            </Input>
           </div>
 
-          {/* Paginación */}
+          <Table
+            columns={columns}
+            data={productos}
+            loading={loading}
+            striped
+            hoverable
+          />
+
           {!loading && totalElementos > 0 && (
-            <div className="d-flex justify-content-between align-items-center mt-3">
-              <div>
-                <span className="text-muted">
-                  Mostrando {indiceInicial} a {indiceFinal} de {totalElementos} productos
-                </span>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginTop: spacing.lg
+            }}>
+              <span style={{
+                color: colors.neutral.gray,
+                fontSize: typography.fontSize.sm
+              }}>
+                Mostrando {indiceInicial} a {indiceFinal} de {totalElementos} productos
+              </span>
+              <div style={{ display: 'flex', gap: spacing.xs }}>
+                <Button
+                  variant="outline"
+                  size="small"
+                  onClick={irAPaginaAnterior}
+                  disabled={paginaActual === 1}
+                >
+                  Anterior
+                </Button>
+                {generarNumerosPagina().map((numeroPagina) => (
+                  <Button
+                    key={numeroPagina}
+                    variant={paginaActual === numeroPagina ? "primary" : "outline"}
+                    size="small"
+                    onClick={() => irAPagina(numeroPagina)}
+                  >
+                    {numeroPagina}
+                  </Button>
+                ))}
+                <Button
+                  variant="outline"
+                  size="small"
+                  onClick={irAPaginaSiguiente}
+                  disabled={paginaActual === totalPaginas}
+                >
+                  Siguiente
+                </Button>
               </div>
-              <nav>
-                <ul className="pagination mb-0">
-                  <li className={`page-item ${paginaActual === 1 ? "disabled" : ""}`}>
-                    <button className="page-link" onClick={irAPaginaAnterior} disabled={paginaActual === 1}>
-                      Anterior
-                    </button>
-                  </li>
-
-                  {generarNumerosPagina().map((numeroPagina) => (
-                    <li key={numeroPagina} className={`page-item ${paginaActual === numeroPagina ? "active" : ""}`}>
-                      <button className="page-link" onClick={() => irAPagina(numeroPagina)}>
-                        {numeroPagina}
-                      </button>
-                    </li>
-                  ))}
-
-                  <li className={`page-item ${paginaActual === totalPaginas ? "disabled" : ""}`}>
-                    <button className="page-link" onClick={irAPaginaSiguiente} disabled={paginaActual === totalPaginas}>
-                      Siguiente
-                    </button>
-                  </li>
-                </ul>
-              </nav>
             </div>
           )}
         </div>
-      </div>
+      </Card>
 
-      {showForm && (
-        <ProductForm onClose={() => setShowForm(false)} onSave={handleSaveProduct} productToEdit={productToEdit} />
-      )}
+      {/* Modal de formulario */}
+      <Modal
+        isOpen={showForm}
+        onClose={() => setShowForm(false)}
+        title={productToEdit ? "Editar Producto" : "Crear Nuevo Producto"}
+        size="large"
+      >
+        <ProductForm
+          product={productToEdit}
+          onSave={handleSaveProduct}
+          onCancel={() => setShowForm(false)}
+        />
+      </Modal>
 
-      {confirmDelete && (
-        <div className="modal d-block" tabIndex="-1" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
-          <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">Confirmar eliminación</h5>
-                <button type="button" className="btn-close" onClick={() => setConfirmDelete(null)}></button>
-              </div>
-              <div className="modal-body">
-                <p>
-                  ¿Estás seguro de que deseas eliminar el producto <strong>{confirmDelete.name}</strong>?
-                </p>
-                <p className="text-danger">Esta acción no se puede deshacer.</p>
-              </div>
-              <div className="modal-footer">
-                <button type="button" className="btn btn-secondary" onClick={() => setConfirmDelete(null)}>
-                  Cancelar
-                </button>
-                <button type="button" className="btn btn-danger" onClick={handleDeleteProduct}>
-                  Eliminar
-                </button>
-              </div>
-            </div>
-          </div>
+      {/* Modal de confirmación de eliminación */}
+      <Modal
+        isOpen={!!confirmDelete}
+        onClose={() => setConfirmDelete(null)}
+        title="Confirmar Eliminación"
+        size="small"
+      >
+        <p>¿Estás seguro de que deseas eliminar este producto?</p>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'flex-end',
+          gap: spacing.md,
+          marginTop: spacing.xl
+        }}>
+          <Button
+            variant="outline"
+            onClick={() => setConfirmDelete(null)}
+          >
+            Cancelar
+          </Button>
+          <Button
+            variant="primary"
+            onClick={handleDeleteProduct}
+          >
+            Eliminar
+          </Button>
         </div>
-      )}
-    </div>
-  )
+      </Modal>
+    </Container>
+  );
 }
 
-export default AdminProductos
+export default AdminProductos;

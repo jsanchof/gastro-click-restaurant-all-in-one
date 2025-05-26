@@ -1,7 +1,9 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import React, { useState, useEffect } from "react"
 import { Pencil, Trash2, Search, Plus, Filter, CheckCircle, XCircle, Clock, Edit } from "lucide-react"
+import { Container, Card, Input, Button, Alert, Table, Modal } from '../../components/common'
+import { colors, typography, spacing, borderRadius } from '../../theme'
 import BookingForm from "../../components/admin/BookingForm"
 
 function AdminReservas() {
@@ -16,6 +18,7 @@ function AdminReservas() {
   // Estados para filtros
   const [filtroEstado, setFiltroEstado] = useState("")
   const [filtroFecha, setFiltroFecha] = useState("")
+  const [showFilters, setShowFilters] = useState(false)
 
   // Estados para paginación desde el backend
   const [loading, setLoading] = useState(true)
@@ -307,12 +310,6 @@ function AdminReservas() {
     }).format(date)
   }
 
-  // Formatear fecha para input date
-  const formatDateForInput = (dateString) => {
-    const date = new Date(dateString)
-    return date.toISOString().split("T")[0]
-  }
-
   // Obtener el color de la insignia según el estado
   const getBadgeColor = (status) => {
     switch (status) {
@@ -345,101 +342,176 @@ function AdminReservas() {
     }
   }
 
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "CANCELADA":
+        return colors.status.error
+      case "CONFIRMADA":
+        return colors.status.success
+      case "PENDIENTE":
+        return colors.status.warning
+      case "COMPLETADA":
+        return colors.status.info
+      default:
+        return colors.neutral.gray
+    }
+  }
+
+  const columns = [
+    { id: 'id', label: '#ID' },
+    { id: 'guest_name', label: 'Invitado' },
+    { id: 'email', label: 'Correo' },
+    { id: 'guest_phone', label: 'Teléfono' },
+    {
+      id: 'status',
+      label: 'Estado',
+      render: (row) => (
+        <div style={{ display: 'flex', alignItems: 'center', gap: spacing.sm }}>
+          <span style={{
+            backgroundColor: getStatusColor(row.status),
+            color: colors.neutral.white,
+            padding: `${spacing.xs} ${spacing.sm}`,
+            borderRadius: borderRadius.full,
+            fontSize: typography.fontSize.sm,
+          }}>
+            {row.status}
+          </span>
+          <Button
+            variant="text"
+            size="small"
+            onClick={() => openStatusModal(row)}
+            title="Cambiar estado"
+          >
+            <Edit size={14} />
+          </Button>
+        </div>
+      )
+    },
+    { id: 'quantity', label: 'Personas' },
+    {
+      id: 'start_date_time',
+      label: 'Fecha Reserva',
+      render: (row) => formatDate(row.start_date_time)
+    },
+    { id: 'table_id', label: 'Mesa' },
+    {
+      id: 'actions',
+      label: 'Acciones',
+      render: (row) => (
+        <div style={{ display: 'flex', gap: spacing.sm }}>
+          <Button
+            variant="outline"
+            size="small"
+            onClick={() => handleEditReservation(row)}
+            title="Editar"
+          >
+            <Pencil size={16} />
+          </Button>
+          <Button
+            variant="outline"
+            size="small"
+            onClick={() => handleDeleteConfirm(row.id)}
+            title="Eliminar"
+          >
+            <Trash2 size={16} />
+          </Button>
+        </div>
+      )
+    }
+  ]
+
   return (
-    <div className="container-fluid">
-      <div className="card shadow-sm">
-        <div className="card-body">
-          <div className="d-flex justify-content-between align-items-center mb-4">
-            <h4 className="card-title mb-0">Gestión de Reservaciones</h4>
-            <button
-              className="btn"
+    <Container maxWidth="xl">
+      {error && (
+        <Alert
+          variant="error"
+          title="Error"
+          message={error}
+          onClose={() => setError(null)}
+        />
+      )}
+
+      <Card>
+        <div style={{ padding: spacing.xl }}>
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: spacing.xl
+          }}>
+            <h2 style={{
+              fontSize: typography.fontSize['2xl'],
+              fontWeight: typography.fontWeight.semibold,
+              margin: 0
+            }}>
+              Gestión de Reservaciones
+            </h2>
+            <Button
+              variant="primary"
               onClick={handleCreateReservation}
-              style={{ backgroundColor: "#27a745", color: "white" }}
             >
-              <Plus size={18} className="me-2" />
-              Crear Reservación
-            </button>
+              <Plus size={18} />
+              Nueva Reservación
+            </Button>
           </div>
 
-          {/* Mensajes de éxito */}
-          {successMessage && (
-            <div className="alert alert-success alert-dismissible fade show" role="alert">
-              {successMessage}
-              <button
-                type="button"
-                className="btn-close"
-                onClick={() => setSuccessMessage(null)}
-                aria-label="Close"
-              ></button>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+            gap: spacing.lg,
+            marginBottom: spacing.xl
+          }}>
+            <div style={{ display: 'flex', gap: spacing.sm }}>
+              <Input
+                type="text"
+                placeholder="Buscar por nombre o correo..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onKeyPress={(e) => e.key === "Enter" && buscarReservaciones()}
+                fullWidth
+              />
+              <Button
+                variant="outline"
+                onClick={buscarReservaciones}
+              >
+                <Search size={18} />
+              </Button>
             </div>
-          )}
 
-          {/* Mensajes de error */}
-          {error && (
-            <div className="alert alert-danger alert-dismissible fade show" role="alert">
-              {error}
-              <button type="button" className="btn-close" onClick={() => setError(null)} aria-label="Close"></button>
-            </div>
-          )}
-
-          <div className="row mb-4">
-            <div className="col-md-6">
-              <div className="input-group">
-                <span className="input-group-text bg-light">
-                  <Search size={18} />
-                </span>
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="Buscar por nombre o correo..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  onKeyPress={(e) => e.key === "Enter" && buscarReservaciones()}
-                />
-                <button className="btn btn-outline-secondary" type="button" onClick={buscarReservaciones}>
-                  Buscar
-                </button>
-              </div>
-            </div>
-            <div className="col-md-6">
-              <div className="d-flex gap-2 justify-content-end">
-                {/* Selector de elementos por página más compacto */}
-                <div style={{ width: "120px" }}>
-                  <select
-                    className="form-select form-select-sm"
-                    value={elementosPorPagina}
-                    onChange={(e) => cambiarElementosPorPagina(Number(e.target.value))}
-                    aria-label="Elementos por página"
-                  >
-                    <option value="5">5 por página</option>
-                    <option value="10">10 por página</option>
-                    <option value="25">25 por página</option>
-                    <option value="50">50 por página</option>
-                  </select>
-                </div>
-                <button
-                  className="btn btn-outline-danger"
-                  type="button"
-                  data-bs-toggle="collapse"
-                  data-bs-target="#collapseFilters"
-                  aria-expanded="false"
-                  aria-controls="collapseFilters"
-                >
-                  <Filter size={18} className="me-1" />
-                  Filtros
-                </button>
-              </div>
+            <div style={{ display: 'flex', gap: spacing.sm, justifyContent: 'flex-end' }}>
+              <Input
+                type="select"
+                value={elementosPorPagina}
+                onChange={(e) => cambiarElementosPorPagina(Number(e.target.value))}
+                style={{ width: '150px' }}
+              >
+                <option value="5">5 por página</option>
+                <option value="10">10 por página</option>
+                <option value="25">25 por página</option>
+                <option value="50">50 por página</option>
+              </Input>
+              <Button
+                variant="outline"
+                onClick={() => setShowFilters(!showFilters)}
+              >
+                <Filter size={18} />
+                Filtros
+              </Button>
             </div>
           </div>
 
-          {/* Filtros colapsables */}
-          <div className="collapse mb-4" id="collapseFilters">
-            <div className="card card-body">
-              <div className="row">
-                <div className="col-md-5">
-                  <label className="form-label">Filtrar por estado</label>
-                  <select
-                    className="form-select"
+          {showFilters && (
+            <Card>
+              <div style={{ padding: spacing.lg }}>
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                  gap: spacing.lg,
+                  marginBottom: spacing.lg
+                }}>
+                  <Input
+                    label="Filtrar por estado"
+                    type="select"
                     value={filtroEstado}
                     onChange={(e) => setFiltroEstado(e.target.value)}
                   >
@@ -448,247 +520,222 @@ function AdminReservas() {
                     <option value="CONFIRMADA">CONFIRMADA</option>
                     <option value="CANCELADA">CANCELADA</option>
                     <option value="COMPLETADA">COMPLETADA</option>
-                  </select>
-                </div>
-                <div className="col-md-5">
-                  <label className="form-label">Filtrar por fecha</label>
-                  <input
+                  </Input>
+
+                  <Input
+                    label="Filtrar por fecha"
                     type="date"
-                    className="form-control"
                     value={filtroFecha}
                     onChange={(e) => setFiltroFecha(e.target.value)}
                   />
                 </div>
-                <div className="col-md-2 d-flex align-items-end">
-                  <div className="d-grid gap-2 w-100">
-                    <button className="btn btn-primary" type="button" onClick={aplicarFiltros}>
-                      Aplicar
-                    </button>
-                    <button className="btn btn-outline-secondary" type="button" onClick={limpiarFiltros}>
-                      Limpiar
-                    </button>
-                  </div>
+
+                <div style={{ display: 'flex', gap: spacing.md, justifyContent: 'flex-end' }}>
+                  <Button
+                    variant="outline"
+                    onClick={limpiarFiltros}
+                  >
+                    Limpiar
+                  </Button>
+                  <Button
+                    variant="primary"
+                    onClick={aplicarFiltros}
+                  >
+                    Aplicar
+                  </Button>
                 </div>
               </div>
-            </div>
-          </div>
+            </Card>
+          )}
 
-          <div className="table-responsive">
-            <table className="table table-hover">
-              <thead className="table-light">
-                <tr>
-                  <th>#ID</th>
-                  <th>Invitado</th>
-                  <th>Correo</th>
-                  <th>Teléfono</th>
-                  <th>Estado</th>
-                  <th>Personas</th>
-                  <th>Fecha Reserva</th>
-                  <th>Mesa</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {loading ? (
-                  <tr>
-                    <td colSpan="9" className="text-center py-4">
-                      <div className="spinner-border text-primary" role="status">
-                        <span className="visually-hidden">Cargando...</span>
-                      </div>
-                    </td>
-                  </tr>
-                ) : (
-                  reservas.map((reserva) => (
-                    <tr key={reserva.id}>
-                      <td>{reserva.id}</td>
-                      <td>{reserva.guest_name}</td>
-                      <td>{reserva.email}</td>
-                      <td>{reserva.guest_phone}</td>
-                      <td>
-                        <div className="d-flex align-items-center">
-                          <span className={`badge ${getBadgeColor(reserva.status)} px-3 rounded-pill me-2`}>
-                            {reserva.status}
-                          </span>
-                          <button
-                            className="btn btn-sm btn-outline-secondary border-0"
-                            onClick={() => openStatusModal(reserva)}
-                            title="Cambiar estado"
-                          >
-                            <Edit size={14} />
-                          </button>
-                        </div>
-                      </td>
-                      <td>{reserva.quantity}</td>
-                      <td>{formatDate(reserva.start_date_time)}</td>
-                      <td>{reserva.table_id}</td>
-                      <td>
-                        <div className="btn-group">
-                          <button
-                            className="btn btn-sm btn-outline-primary"
-                            onClick={() => handleEditReservation(reserva)}
-                            title="Editar"
-                          >
-                            <Pencil size={16} />
-                          </button>
-                          <button
-                            className="btn btn-sm btn-outline-danger"
-                            onClick={() => handleDeleteConfirm(reserva.id)}
-                            title="Eliminar"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
+          <div style={{ marginTop: spacing.xl }}>
+            <Table
+              columns={columns}
+              data={reservas}
+              loading={loading}
+              striped
+              hoverable
+            />
 
-                {!loading && reservas.length === 0 && (
-                  <tr>
-                    <td colSpan="9" className="text-center py-3">
-                      No se encontraron reservaciones
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Paginación */}
-          {!loading && totalElementos > 0 && (
-            <div className="d-flex justify-content-between align-items-center mt-3">
-              <div>
-                <span className="text-muted">
+            {!loading && totalElementos > 0 && (
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginTop: spacing.lg
+              }}>
+                <span style={{
+                  color: colors.neutral.gray,
+                  fontSize: typography.fontSize.sm
+                }}>
                   Mostrando {indiceInicial} a {indiceFinal} de {totalElementos} reservaciones
                 </span>
-              </div>
-              <nav>
-                <ul className="pagination mb-0">
-                  <li className={`page-item ${paginaActual === 1 ? "disabled" : ""}`}>
-                    <button className="page-link" onClick={irAPaginaAnterior} disabled={paginaActual === 1}>
-                      Anterior
-                    </button>
-                  </li>
-
+                <div style={{ display: 'flex', gap: spacing.xs }}>
+                  <Button
+                    variant="outline"
+                    size="small"
+                    onClick={irAPaginaAnterior}
+                    disabled={paginaActual === 1}
+                  >
+                    Anterior
+                  </Button>
                   {generarNumerosPagina().map((numeroPagina) => (
-                    <li key={numeroPagina} className={`page-item ${paginaActual === numeroPagina ? "active" : ""}`}>
-                      <button className="page-link" onClick={() => irAPagina(numeroPagina)}>
-                        {numeroPagina}
-                      </button>
-                    </li>
+                    <Button
+                      key={numeroPagina}
+                      variant={paginaActual === numeroPagina ? "primary" : "outline"}
+                      size="small"
+                      onClick={() => irAPagina(numeroPagina)}
+                    >
+                      {numeroPagina}
+                    </Button>
                   ))}
-
-                  <li className={`page-item ${paginaActual === totalPaginas ? "disabled" : ""}`}>
-                    <button className="page-link" onClick={irAPaginaSiguiente} disabled={paginaActual === totalPaginas}>
-                      Siguiente
-                    </button>
-                  </li>
-                </ul>
-              </nav>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Modal para cambiar estado */}
-      {statusModal.show && (
-        <div className="modal d-block" tabIndex="-1" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
-          <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">Cambiar Estado de Reservación</h5>
-                <button
-                  type="button"
-                  className="btn-close"
-                  onClick={() => setStatusModal({ show: false, reservaId: null, currentStatus: null })}
-                ></button>
-              </div>
-              <div className="modal-body">
-                <p>
-                  Estado actual:{" "}
-                  <span className={`badge ${getBadgeColor(statusModal.currentStatus)}`}>
-                    {statusModal.currentStatus}
-                  </span>
-                </p>
-                <p>Selecciona el nuevo estado:</p>
-
-                <div className="d-grid gap-2">
-                  <button
-                    className="btn btn-warning d-flex align-items-center justify-content-center"
-                    onClick={() => handleQuickStatusChange("PENDIENTE")}
+                  <Button
+                    variant="outline"
+                    size="small"
+                    onClick={irAPaginaSiguiente}
+                    disabled={paginaActual === totalPaginas}
                   >
-                    <Clock size={18} className="me-2" />
-                    PENDIENTE
-                  </button>
-
-                  <button
-                    className="btn btn-success d-flex align-items-center justify-content-center"
-                    onClick={() => handleQuickStatusChange("CONFIRMADA")}
-                  >
-                    <CheckCircle size={18} className="me-2" />
-                    CONFIRMADA
-                  </button>
-
-                  <button
-                    className="btn btn-danger d-flex align-items-center justify-content-center"
-                    onClick={() => handleQuickStatusChange("CANCELADA")}
-                  >
-                    <XCircle size={18} className="me-2" />
-                    CANCELADA
-                  </button>
-
-                  <button
-                    className="btn btn-info d-flex align-items-center justify-content-center text-white"
-                    onClick={() => handleQuickStatusChange("COMPLETADA")}
-                  >
-                    <CheckCircle size={18} className="me-2" />
-                    COMPLETADA
-                  </button>
+                    Siguiente
+                  </Button>
                 </div>
               </div>
-              <div className="modal-footer">
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={() => setStatusModal({ show: false, reservaId: null, currentStatus: null })}
-                >
-                  Cancelar
-                </button>
-              </div>
-            </div>
+            )}
           </div>
         </div>
-      )}
+      </Card>
 
+      {/* Modal para cambiar estado */}
+      <Modal
+        isOpen={statusModal.show}
+        onClose={() => setStatusModal({ show: false, reservaId: null, currentStatus: null })}
+        title="Cambiar Estado de Reservación"
+        size="small"
+      >
+        <div>
+          <p style={{ marginBottom: spacing.md }}>
+            Estado actual:{" "}
+            <span style={{
+              backgroundColor: getStatusColor(statusModal.currentStatus),
+              color: colors.neutral.white,
+              padding: `${spacing.xs} ${spacing.sm}`,
+              borderRadius: borderRadius.full,
+              fontSize: typography.fontSize.sm,
+            }}>
+              {statusModal.currentStatus}
+            </span>
+          </p>
+
+          <p style={{ marginBottom: spacing.md }}>Selecciona el nuevo estado:</p>
+
+          <div style={{ display: 'grid', gap: spacing.md }}>
+            <Button
+              variant="outline"
+              onClick={() => handleQuickStatusChange("PENDIENTE")}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: spacing.sm,
+                color: colors.status.warning,
+                borderColor: colors.status.warning
+              }}
+            >
+              <Clock size={18} />
+              PENDIENTE
+            </Button>
+
+            <Button
+              variant="outline"
+              onClick={() => handleQuickStatusChange("CONFIRMADA")}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: spacing.sm,
+                color: colors.status.success,
+                borderColor: colors.status.success
+              }}
+            >
+              <CheckCircle size={18} />
+              CONFIRMADA
+            </Button>
+
+            <Button
+              variant="outline"
+              onClick={() => handleQuickStatusChange("CANCELADA")}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: spacing.sm,
+                color: colors.status.error,
+                borderColor: colors.status.error
+              }}
+            >
+              <XCircle size={18} />
+              CANCELADA
+            </Button>
+
+            <Button
+              variant="outline"
+              onClick={() => handleQuickStatusChange("COMPLETADA")}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: spacing.sm,
+                color: colors.status.info,
+                borderColor: colors.status.info
+              }}
+            >
+              <CheckCircle size={18} />
+              COMPLETADA
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Modal de confirmación de eliminación */}
+      <Modal
+        isOpen={!!confirmDelete}
+        onClose={() => setConfirmDelete(null)}
+        title="Confirmar Eliminación"
+        size="small"
+      >
+        <div>
+          <p style={{ marginBottom: spacing.lg }}>¿Estás seguro de que deseas eliminar esta reservación?</p>
+          <p style={{ color: colors.status.error, marginBottom: spacing.xl }}>Esta acción no se puede deshacer.</p>
+
+          <div style={{
+            display: 'flex',
+            justifyContent: 'flex-end',
+            gap: spacing.md
+          }}>
+            <Button
+              variant="outline"
+              onClick={() => setConfirmDelete(null)}
+            >
+              Cancelar
+            </Button>
+            <Button
+              variant="primary"
+              onClick={handleDeleteReservation}
+            >
+              Eliminar
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Modal de formulario */}
       {showForm && (
-        <BookingForm onClose={() => setShowForm(false)} onSave={handleSaveReservation} reservaToEdit={reservaToEdit} />
+        <BookingForm
+          onClose={() => setShowForm(false)}
+          onSave={handleSaveReservation}
+          reservaToEdit={reservaToEdit}
+        />
       )}
-
-      {confirmDelete && (
-        <div className="modal d-block" tabIndex="-1" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
-          <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">Confirmar eliminación</h5>
-                <button type="button" className="btn-close" onClick={() => setConfirmDelete(null)}></button>
-              </div>
-              <div className="modal-body">
-                <p>¿Estás seguro de que deseas eliminar esta reservación?</p>
-                <p className="text-danger">Esta acción no se puede deshacer.</p>
-              </div>
-              <div className="modal-footer">
-                <button type="button" className="btn btn-secondary" onClick={() => setConfirmDelete(null)}>
-                  Cancelar
-                </button>
-                <button type="button" className="btn btn-danger" onClick={handleDeleteReservation}>
-                  Eliminar
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+    </Container>
   )
 }
 

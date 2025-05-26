@@ -1,19 +1,84 @@
 import React, { useEffect, useState } from "react";
-import images from "../assets/images";
+import { Container, Card, Alert } from '../components/common';
+import { colors, typography, spacing, borderRadius } from '../theme';
+import SEO from '../components/SEO';
+
+const MenuSection = ({ title, items }) => {
+  const titleStyles = {
+    fontSize: typography.fontSize['2xl'],
+    fontWeight: typography.fontWeight.semibold,
+    color: colors.neutral.black,
+    marginBottom: spacing.lg,
+  };
+
+  const itemStyles = {
+    display: 'flex',
+    gap: spacing.lg,
+    marginBottom: spacing.xl,
+  };
+
+  const imageStyles = {
+    height: '200px',
+    width: '200px',
+    objectFit: 'cover',
+    borderRadius: borderRadius.md,
+  };
+
+  const contentStyles = {
+    flex: 1,
+  };
+
+  const nameStyles = {
+    fontSize: typography.fontSize.xl,
+    fontWeight: typography.fontWeight.semibold,
+    color: colors.neutral.black,
+    marginBottom: spacing.xs,
+  };
+
+  const descriptionStyles = {
+    fontSize: typography.fontSize.base,
+    color: colors.neutral.darkGray,
+    marginBottom: spacing.xs,
+  };
+
+  const priceStyles = {
+    fontSize: typography.fontSize.lg,
+    fontWeight: typography.fontWeight.medium,
+    color: colors.primary.main,
+  };
+
+  return (
+    <div id={title.toLowerCase()}>
+      <h2 style={titleStyles}>{title}</h2>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(600px, 1fr))', gap: spacing.lg }}>
+        {items.map((item) => (
+          <div key={item.id} style={itemStyles}>
+            <img
+              src={item.url_img}
+              alt={item.name}
+              style={imageStyles}
+            />
+            <div style={contentStyles}>
+              <h3 style={nameStyles}>{item.name}</h3>
+              <p style={descriptionStyles}>{item.description}</p>
+              <p style={priceStyles}>${item.price}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
 
 export const Menu = () => {
   const [dishes, setDishes] = useState([]);
   const [drinks, setDrinks] = useState([]);
   const [error, setError] = useState(null);
 
-  const GetDishes = async () => {
+  const fetchDishes = async () => {
     try {
       const response = await fetch(import.meta.env.VITE_BACKEND_URL + "/dishes");
-
-      if (!response.ok) {
-        throw new Error("Ha ocurrido un error al obtener el menú");
-      }
-
+      if (!response.ok) throw new Error("Ha ocurrido un error al obtener el menú");
       const data = await response.json();
       setDishes(data);
     } catch (error) {
@@ -21,14 +86,11 @@ export const Menu = () => {
       setError(error.message);
     }
   };
-  const GetDrinks = async () => {
+
+  const fetchDrinks = async () => {
     try {
       const response = await fetch(import.meta.env.VITE_BACKEND_URL + "/drinks");
-
-      if (!response.ok) {
-        throw new Error("Ha ocurrido un error al obtener el menú");
-      }
-
+      if (!response.ok) throw new Error("Ha ocurrido un error al obtener el menú");
       const data = await response.json();
       setDrinks(data);
     } catch (error) {
@@ -38,181 +100,114 @@ export const Menu = () => {
   };
 
   useEffect(() => {
-    GetDishes();
-  }, []);
-  useEffect(() => {
-    GetDrinks();
+    fetchDishes();
+    fetchDrinks();
   }, []);
 
-  const entradas = dishes.filter(dish => dish.type === "ENTRADA");
-  const principales = dishes.filter(dish => dish.type === "PRINCIPAL");
-  const postres = dishes.filter(dish => dish.type === "POSTRE");
+  const menuCategories = [
+    { id: 'entradas', label: 'Entradas' },
+    { id: 'principales', label: 'Platillos principales' },
+    { id: 'postres', label: 'Postres' },
+    { id: 'gaseosas', label: 'Gaseosas' },
+    { id: 'naturales', label: 'Naturales' },
+    { id: 'cervezas', label: 'Cervezas' },
+    { id: 'destilados', label: 'Destilados' },
+  ];
 
-  const gaseosas = drinks.filter(drink => drink.type === "GASEOSA");
-  const naturales = drinks.filter(drink => drink.type === "NATURAL");
-  const cervezas = drinks.filter(drink => drink.type === "CERVEZA");
-  const destilados = drinks.filter(drink => drink.type === "DESTILADOS");
+  const navStyles = {
+    backgroundColor: colors.primary.main,
+    padding: `${spacing.md} ${spacing.lg}`,
+    borderRadius: borderRadius.md,
+    marginBottom: spacing.xl,
+  };
+
+  const navLinkStyles = {
+    color: colors.neutral.white,
+    textDecoration: 'none',
+    fontSize: typography.fontSize.base,
+    fontWeight: typography.fontWeight.medium,
+    padding: spacing.sm,
+    borderRadius: borderRadius.sm,
+    transition: 'background-color 0.2s',
+    '&:hover': {
+      backgroundColor: colors.primary.dark,
+    },
+  };
 
   return (
-    <div className="container py-3">
-      <div className="row">
-        <div
-          className="col-12 d-flex align-items-center"
-          style={{ background: "#d12525", height: "60px", borderRadius: "10px", color: "white", padding: "0 20px" }}
-        >
-          <h1 className="me-5" style={{ fontSize: "24px", margin: 0 }}>Menú</h1>
-          <ul className="d-flex list-unstyled mb-0" style={{ gap: "30px" }}>
-            <li><a href="#entradas" style={{ color: "white", textDecoration: "none" }}>Entradas</a></li>
-            <li><a href="#principales" style={{ color: "white", textDecoration: "none" }}>Platillos principales</a></li>
-            <li><a href="#postres" style={{ color: "white", textDecoration: "none" }}>Postres</a></li>
-            <li><a href="#gaseosas" style={{ color: "white", textDecoration: "none" }}>Gaseosas</a></li>
-            <li><a href="#naturales" style={{ color: "white", textDecoration: "none" }}>Naturales</a></li>
-            <li><a href="#cervezas" style={{ color: "white", textDecoration: "none" }}>Cervezas</a></li>
-            <li><a href="#destilados" style={{ color: "white", textDecoration: "none" }}>Destilados</a></li>
-          </ul>
-        </div>
+    <>
+      <SEO
+        title="Menú | Auténtica Comida Mexicana"
+        description="Explora nuestro menú de auténtica comida mexicana. Desde tacos y enchiladas hasta guacamole fresco y margaritas. Platos tradicionales preparados con ingredientes frescos."
+        keywords="menu mexicano, tacos, enchiladas, guacamole, comida mexicana, restaurante mexicano, margaritas"
+        canonicalUrl="https://elmexicano-restaurant.com/menu"
+        ogImage="/images/menu-hero.jpg"
+      />
 
-        <div id="entradas" className="Entradas col-12 p-3">
-          <h3>Entradas</h3>
-          <div className="row">
-            {entradas.map(dish => (
-              <div key={dish.name} className="col-md-6 mb-4 d-flex" style={{ gap: "20px" }}>
-                <img
-                  src={dish.url_img} 
-                  alt={dish.name}
-                  style={{ height: "200px", width: "200px", objectFit: "cover", borderRadius: "10px" }}
-                />
-                <div>
-                  <h5 style={{ margin: 0 }}>{dish.name}</h5>
-                  <p className="mb-1">{dish.description}</p>
-                  <p className="text-muted">${dish.price}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+      <Container maxWidth="xl">
+        {error && (
+          <Alert
+            variant="error"
+            title="Error"
+            message={error}
+            onClose={() => setError(null)}
+          />
+        )}
 
-        <div id="principales" className="Principales col-12 p-3">
-          <h3>Platillos principales</h3>
-          <div className="row">
-            {principales.map(dish => (
-              <div key={dish.name} className="col-md-6 mb-4 d-flex" style={{ gap: "20px" }}>
-                <img
-                  src={dish.url_img} 
-                  alt={dish.name}
-                  style={{ height: "200px", width: "200px", objectFit: "cover", borderRadius: "10px" }}
-                />
-                <div>
-                  <h5 style={{ margin: 0 }}>{dish.name}</h5>
-                  <p className="mb-1">{dish.description}</p>
-                  <p className="text-muted">${dish.price}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+        <Card>
+          <nav style={navStyles}>
+            <h1 style={{
+              fontSize: typography.fontSize['3xl'],
+              color: colors.neutral.white,
+              marginBottom: spacing.md
+            }}>
+              Menú
+            </h1>
+            <div style={{ display: 'flex', gap: spacing.md, flexWrap: 'wrap' }}>
+              {menuCategories.map((category) => (
+                <a
+                  key={category.id}
+                  href={`#${category.id}`}
+                  style={navLinkStyles}
+                >
+                  {category.label}
+                </a>
+              ))}
+            </div>
+          </nav>
 
-        <div id="postres" className="Postres col-12 p-3">
-          <h3>Postres</h3>
-          <div className="row">
-            {postres.map(dish => (
-              <div key={dish.id} className="col-md-6 mb-4 d-flex" style={{ gap: "20px" }}>
-                <img
-                  src={dish.url_img}
-                  alt={dish.name}
-                  style={{ height: "200px", width: "200px", objectFit: "cover", borderRadius: "10px" }}
-                />
-                <div>
-                  <h5 style={{ margin: 0 }}>{dish.name}</h5>
-                  <p className="mb-1">{dish.description}</p>
-                  <p className="text-muted">${dish.price}</p>
-                </div>
-              </div>
-            ))}
+          <div style={{ padding: spacing.xl }}>
+            <MenuSection
+              title="Entradas"
+              items={dishes.filter(dish => dish.type === "ENTRADA")}
+            />
+            <MenuSection
+              title="Platillos Principales"
+              items={dishes.filter(dish => dish.type === "PRINCIPAL")}
+            />
+            <MenuSection
+              title="Postres"
+              items={dishes.filter(dish => dish.type === "POSTRE")}
+            />
+            <MenuSection
+              title="Gaseosas"
+              items={drinks.filter(drink => drink.type === "GASEOSA")}
+            />
+            <MenuSection
+              title="Naturales"
+              items={drinks.filter(drink => drink.type === "NATURAL")}
+            />
+            <MenuSection
+              title="Cervezas"
+              items={drinks.filter(drink => drink.type === "CERVEZA")}
+            />
+            <MenuSection
+              title="Destilados"
+              items={drinks.filter(drink => drink.type === "DESTILADOS")}
+            />
           </div>
-        </div>
-
-        <div id="gaseosas" className="Postres col-12 p-3">
-          <h3>Gaseosas</h3>
-          <div className="row">
-            {gaseosas.map(drink => (
-              <div key={drink.id} className="col-md-6 mb-4 d-flex" style={{ gap: "20px" }}>
-                <img
-                  src={drink.url_img}
-                  alt={drink.name}
-                  style={{ height: "200px", width: "200px", objectFit: "cover", borderRadius: "10px" }}
-                />
-                <div>
-                  <h5 style={{ margin: 0 }}>{drink.name}</h5>
-                  <p className="mb-1">{drink.description}</p>
-                  <p className="text-muted">${drink.price}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div id="naturales" className="Postres col-12 p-3">
-          <h3>Naturales</h3>
-          <div className="row">
-            {naturales.map(drink => (
-              <div key={drink.id} className="col-md-6 mb-4 d-flex" style={{ gap: "20px" }}>
-                <img
-                  src={drink.url_img}
-                  alt={drink.name}
-                  style={{ height: "200px", width: "200px", objectFit: "cover", borderRadius: "10px" }}
-                />
-                <div>
-                  <h5 style={{ margin: 0 }}>{drink.name}</h5>
-                  <p className="mb-1">{drink.description}</p>
-                  <p className="text-muted">${drink.price}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div id="cervezas" className="Postres col-12 p-3">
-          <h3>Cervezas</h3>
-          <div className="row">
-            {cervezas.map(drink => (
-              <div key={drink.id} className="col-md-6 mb-4 d-flex" style={{ gap: "20px" }}>
-                <img
-                  src={drink.url_img}
-                  alt={drink.name}
-                  style={{ height: "200px", width: "200px", objectFit: "cover", borderRadius: "10px" }}
-                />
-                <div>
-                  <h5 style={{ margin: 0 }}>{drink.name}</h5>
-                  <p className="mb-1">{drink.description}</p>
-                  <p className="text-muted">${drink.price}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div id="destilados" className="Postres col-12 p-3">
-          <h3>Destilados</h3>
-          <div className="row">
-            {destilados.map(drink => (
-              <div key={drink.id} className="col-md-6 mb-4 d-flex" style={{ gap: "20px" }}>
-                <img
-                  src={drink.url_img}
-                  alt={drink.name}
-                  style={{ height: "200px", width: "200px", objectFit: "cover", borderRadius: "10px" }}
-                />
-                <div>
-                  <h5 style={{ margin: 0 }}>{drink.name}</h5>
-                  <p className="mb-1">{drink.description}</p>
-                  <p className="text-muted">${drink.price}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-        {error && <p className="text-danger">{error}</p>}
-      </div>
-    </div>
+        </Card>
+      </Container>
+    </>
   );
 };

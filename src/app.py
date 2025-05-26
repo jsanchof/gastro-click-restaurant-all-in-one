@@ -10,7 +10,7 @@ from api.models import db, User, user_role, Dishes, dish_type, Drinks, drink_typ
 from api.routes import api
 from api.admin import setup_admin
 from api.commands import setup_commands
-from flask_jwt_extended import create_access_token, JWTManager, get_jwt_identity, jwt_required, get_jwt, jwt_required
+from flask_jwt_extended import create_access_token, JWTManager, get_jwt_identity, jwt_required, get_jwt
 from flask_cors import CORS
 from flask_bcrypt import Bcrypt
 from datetime import timedelta
@@ -591,7 +591,7 @@ def get_drink_by_id(drink_id):
         return jsonify({"error": "Internal Server Error", "message": str(e)}), 500
 
 
-@app.route('/drinks/<int:dish_id>', methods=['PUT'])
+@app.route('/drinks/<int:drink_id>', methods=['PUT'])
 def update_drink(drink_id):
     try:
         drink = Drinks.query.get(drink_id)

@@ -1,12 +1,13 @@
 // Import necessary components from react-router-dom and other parts of the application.
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Container, Card, Input, Button, Alert } from '../components/common';
+import { colors, typography, spacing } from '../theme';
 import { GoogleMapLocation } from "../components/GoogleMapLocation";
-import { showError, showSuccess } from "../utils/toastUtils";
+import SEO from '../components/SEO';
 
 export function Contacto() {
   const [form, setForm] = useState({ name: "", email: "", message: "" });
-  const [errorMessage, setErrorMessage] = useState("");
+  const [alert, setAlert] = useState(null);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -26,117 +27,189 @@ export function Contacto() {
       const dataResponse = await response.json();
 
       if (!response.ok) {
-        setErrorMessage(dataResponse.msg || "Error al enviar mensaje");
+        setAlert({
+          variant: 'error',
+          title: 'Error',
+          message: dataResponse.msg || "Error al enviar mensaje"
+        });
         return;
       }
 
-      showSuccess("Mensaje enviado correctamente");
+      setAlert({
+        variant: 'success',
+        title: 'Éxito',
+        message: "Mensaje enviado correctamente"
+      });
       setForm({ name: "", email: "", message: "" });
-      setErrorMessage("");
-    
+
     } catch (error) {
       console.error("Error en el envío:", error);
-      setErrorMessage("Ocurrió un error al enviar el mensaje.");
-      showError(errorMessage)
+      setAlert({
+        variant: 'error',
+        title: 'Error',
+        message: "Ocurrió un error al enviar el mensaje."
+      });
     }
-  }
+  };
 
+  const titleStyles = {
+    fontSize: typography.fontSize['2xl'],
+    fontWeight: typography.fontWeight.semibold,
+    color: colors.neutral.black,
+    marginBottom: spacing.lg,
+  };
+
+  const subtitleStyles = {
+    fontSize: typography.fontSize.lg,
+    color: colors.neutral.darkGray,
+    marginBottom: spacing.md,
+  };
+
+  const iconStyles = {
+    color: colors.primary.main,
+    fontSize: '2rem',
+    marginBottom: spacing.sm,
+  };
+
+  const infoBlockStyles = {
+    marginBottom: spacing.xl,
+  };
+
+  const infoTextStyles = {
+    fontSize: typography.fontSize.base,
+    color: colors.neutral.darkGray,
+    margin: 0,
+  };
 
   return (
     <>
-      <div className="container py-5">
-        <div className="row g-5">
-          <div className="col-md-6">
-            {/* Datos de Contacto del Restaurante */}
-            <h2 className="d-flex mb-4 text-secondary-emphasis">CONTÁCTANOS</h2>
-            <div className="col-md-10 mb-4">
-              <p>Nos encontramos en una ubicación privilegiada, de fácil acceso para todos nuestros clientes y con opciones de estacionamiento cercanas para tu comodidad.</p>
-            </div>
-            <div className="row">
-              <div className="col">
-                <div className="row pb-3">
-                  <i className="fa-solid fa-map-location-dot text-danger fa-2x"></i>
+      <SEO
+        title="Contacto | El Mexicano Restaurant"
+        description="Contáctanos para reservaciones, eventos especiales o cualquier consulta. Ubicados en Pachuca, ofrecemos auténtica comida mexicana en un ambiente acogedor."
+        keywords="contacto restaurante mexicano, ubicación restaurante, teléfono restaurante, email restaurante"
+        canonicalUrl="https://elmexicano-restaurant.com/contacto"
+        ogImage="/images/restaurant-contact.jpg"
+      />
+
+      <Container maxWidth="xl">
+        {alert && (
+          <Alert
+            variant={alert.variant}
+            title={alert.title}
+            message={alert.message}
+            onClose={() => setAlert(null)}
+          />
+        )}
+
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+          gap: spacing.xl,
+          marginBottom: spacing.xl
+        }}>
+          <Card>
+            <div style={{ padding: spacing.xl }}>
+              <h2 style={titleStyles}>CONTÁCTANOS</h2>
+              <p style={subtitleStyles}>
+                Nos encontramos en una ubicación privilegiada, de fácil acceso para todos nuestros clientes y con opciones de estacionamiento cercanas para tu comodidad.
+              </p>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: spacing.xl }}>
+                <div>
+                  <div style={infoBlockStyles}>
+                    <i className="fa-solid fa-map-location-dot" style={iconStyles}></i>
+                    <p style={infoTextStyles}>
+                      Blvd. Valle de San Javier, 42086,<br />
+                      Pachuca de Soto, México
+                    </p>
+                  </div>
+
+                  <div style={infoBlockStyles}>
+                    <i className="fa-solid fa-envelope-open" style={iconStyles}></i>
+                    <p style={infoTextStyles}>
+                      info@yourdomain.com<br />
+                      admin@yourdomain.com
+                    </p>
+                  </div>
                 </div>
-                <div className="row">
-                  <p>Blvd. Valle de San Javier, 42086,<br /> Pachuca de Soto, México</p>
-                </div>
-                <div className="row pb-3 pt-4">
-                  <i className="fa-solid fa-envelope-open text-danger fa-2x"></i>
-                </div>
-                <div className="row">
-                  <p>info@yourdomain.com<br />admin@yourdomain.com</p>
+
+                <div>
+                  <div style={infoBlockStyles}>
+                    <i className="fa-solid fa-clock" style={iconStyles}></i>
+                    <p style={infoTextStyles}>
+                      Lunes a Domingo<br />
+                      8:00 am - 10:30 pm
+                    </p>
+                  </div>
+
+                  <div style={infoBlockStyles}>
+                    <i className="fa-solid fa-phone" style={iconStyles}></i>
+                    <p style={infoTextStyles}>
+                      +52 55 1234 5678<br />
+                      +52 55 3421 5678
+                    </p>
+                  </div>
                 </div>
               </div>
-              <div className="col">
-                <div className="row pb-3">
-                  <i className="fa-solid fa-clock text-danger fa-2x"></i>
-                </div>
-                <div className="row">
-                  <p>Lunes a Domingo<br /> 8:00 am - 10:30 pm</p>
-                </div>
-                <div className="row pb-3 pt-4">
-                  <i className="fa-solid fa-phone text-danger fa-2x"></i>
-                </div>
-                <div className="row">
-                  <p>+52 55 1234 5678<br />+52 55 3421 5678</p>
-                </div>
-              </div>
             </div>
-          </div>
-          {/* Formulario de Contacto */}
-          <div className="col-md-6">
-            <h2 className="mb-5 text-secondary-emphasis">Envíanos un Mensaje</h2>
-            <form onSubmit={handleSubmit}>
-              <div className="form-group mb-3">
-                <input
+          </Card>
+
+          <Card>
+            <div style={{ padding: spacing.xl }}>
+              <h2 style={titleStyles}>Envíanos un Mensaje</h2>
+              <form onSubmit={handleSubmit}>
+                <Input
                   type="text"
-                  className="form-control"
                   name="name"
-                  placeholder="Tu Nombre"
+                  label="Tu Nombre"
                   value={form.name}
                   onChange={handleChange}
                   required
+                  fullWidth
                 />
-              </div>
-              <div className="form-group mb-3">
-                <input
+
+                <Input
                   type="email"
-                  className="form-control"
                   name="email"
-                  placeholder="Tu Correo Electrónico"
+                  label="Tu Correo Electrónico"
                   value={form.email}
                   onChange={handleChange}
                   required
+                  fullWidth
                 />
-              </div>
-              <div className="form-group mb-3">
-                <textarea
-                  className="form-control"
+
+                <Input
+                  type="textarea"
                   name="message"
-                  placeholder="Escribe Tu Mensaje Aquí"
-                  rows="4"
+                  label="Escribe Tu Mensaje Aquí"
                   value={form.message}
                   onChange={handleChange}
                   required
-                ></textarea>
-              </div>
-              <button type="submit" className="btn btn-danger w-100">
-                ENVIAR MENSAJE
-              </button>
-            </form>
-          </div>
+                  fullWidth
+                />
 
-
-
+                <div style={{ marginTop: spacing.xl }}>
+                  <Button
+                    variant="primary"
+                    type="submit"
+                    fullWidth
+                  >
+                    ENVIAR MENSAJE
+                  </Button>
+                </div>
+              </form>
+            </div>
+          </Card>
         </div>
-      </div>
 
-      {/* Google Maps */}
-      <div className="full-width-map mt-5">
-        <GoogleMapLocation/>
-      </div>
+        <Card>
+          <div style={{ height: '400px', width: '100%' }}>
+            <GoogleMapLocation />
+          </div>
+        </Card>
+      </Container>
     </>
   );
-};
+}
 
 export default Contacto;

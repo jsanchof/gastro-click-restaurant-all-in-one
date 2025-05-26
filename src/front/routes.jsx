@@ -22,7 +22,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import LayoutClient from "./layouts/LayoutClient";
 import CrearOrden from "./pages/user/CrearOrden";
 import MisOrdenes from "./pages/user/MisOrdenes";
-import {VerifyEmail} from "./pages/user/VerifyEmail";
+import { VerifyEmail } from "./pages/user/VerifyEmail";
 // Componentes Cocina
 import KitchenView from "./pages/kitchen/KitchenView";
 import LayoutKitchen from "./layouts/LayoutKitchen";
@@ -32,7 +32,10 @@ import AdminUsers from "./pages/admin/AdminUsers";
 import AdminProductos from "./pages/admin/AdminProductos";
 import LayoutAdmin from "./layouts/LayoutAdmin";
 import AdminReservas from "./pages/admin/AdminReservas";
-
+// Componentes Mesero
+import WaitressLayout from "./pages/waitress/Layout";
+import WaitressOrders from "./pages/waitress/Orders";
+import WaitressTables from "./pages/waitress/Tables";
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
@@ -94,6 +97,18 @@ export const router = createBrowserRouter(
         }
       >
         <Route path="/kitchen" element={<KitchenView />} />
+      </Route>
+
+      {/* Mesero */}
+      <Route
+        element={
+          <ProtectedRoute requiredRole="MESERO">
+            <WaitressLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route path="/waitress/orders" element={<WaitressOrders />} />
+        <Route path="/waitress/tables" element={<WaitressTables />} />
       </Route>
     </>
   )
